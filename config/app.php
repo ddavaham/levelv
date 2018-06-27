@@ -40,6 +40,81 @@ return [
     */
 
     'debug' => env('APP_DEBUG', false),
+    'debug_blacklist' => [
+        '_SERVER' => [
+            "APP_KEY",
+            "APP_BASE_URL",
+            "DB_CONNECTION",
+            "DB_HOST",
+            "DB_PORT",
+            "DB_DATABASE",
+            "DB_USERNAME",
+            "DB_PASSWORD",
+            "BROADCAST_DRIVER",
+            "CACHE_DRIVER",
+            "SESSION_DRIVER",
+            "QUEUE_DRIVER",
+            "EVE_SERVER_ADMIN_CHARACTER_ID",
+            "MMODE_EXEMPT",
+            "AUTH_EVE_CLIENT_ID",
+            "AUTH_EVE_CLIENT_SECRET",
+            "AUTH_EVE_CLIENT_CALLBACK",
+            "DISCORD_GUILD_ID",
+            "DISCORD_GUILD_NAME",
+            "DISCORD_TOKEN",
+            "DISCORD_BOT_ID",
+            "DISCORD_AVATAR_HASH",
+            "DISCORD_BOT_TRIGGER",
+            "DISCORD_CLIENT_ID",
+            "DISCORD_CLIENT_SECRET",
+            "DISCORD_NOTIFICATIONS_CHANNEL",
+            "DISCORD_SYSTEM_PINGS",
+            "TS_SERVERQUERY_USERNAME",
+            "TS_SERVERQUERY_PASSWORD",
+            "TS_FQDN",
+            "TS_IP_ADDRESS",
+            "TS_TELNET_PORT",
+            "TS_SERVER_PORT"
+        ],
+        '_ENV' => [
+            "APP_KEY",
+            "APP_BASE_URL",
+            "DB_CONNECTION",
+            "DB_HOST",
+            "DB_PORT",
+            "DB_DATABASE",
+            "DB_USERNAME",
+            "DB_PASSWORD",
+            "BROADCAST_DRIVER",
+            "CACHE_DRIVER",
+            "SESSION_DRIVER",
+            "QUEUE_DRIVER",
+            "EVE_SERVER_ADMIN_CHARACTER_ID",
+            "MMODE_EXEMPT",
+            "AUTH_EVE_CLIENT_ID",
+            "AUTH_EVE_CLIENT_SECRET",
+            "AUTH_EVE_CLIENT_CALLBACK",
+            "DISCORD_GUILD_ID",
+            "DISCORD_GUILD_NAME",
+            "DISCORD_TOKEN",
+            "DISCORD_BOT_ID",
+            "DISCORD_AVATAR_HASH",
+            "DISCORD_BOT_TRIGGER",
+            "DISCORD_CLIENT_ID",
+            "DISCORD_CLIENT_SECRET",
+            "DISCORD_NOTIFICATIONS_CHANNEL",
+            "DISCORD_SYSTEM_PINGS",
+            "TS_SERVERQUERY_USERNAME",
+            "TS_SERVERQUERY_PASSWORD",
+            "TS_FQDN",
+            "TS_IP_ADDRESS",
+            "TS_TELNET_PORT",
+            "TS_SERVER_PORT"
+        ],
+        '_POST' => [
+            '_token'
+        ]
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -154,11 +229,11 @@ return [
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
+        LevelV\Providers\AppServiceProvider::class,
+        LevelV\Providers\AuthServiceProvider::class,
+        // LevelV\Providers\BroadcastServiceProvider::class,
+        LevelV\Providers\EventServiceProvider::class,
+        LevelV\Providers\RouteServiceProvider::class,
 
     ],
 
