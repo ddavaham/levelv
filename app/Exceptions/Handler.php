@@ -2,8 +2,9 @@
 
 namespace LevelV\Exceptions;
 
-use Exception;
+use Exception, Session;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Auth\AuthenticationException;
 
 class Handler extends ExceptionHandler
 {
@@ -47,5 +48,11 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         return parent::render($request, $exception);
+    }
+
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        Session::put('to', $request->fullUrl());
+        return redirect(route('auth.login'));
     }
 }
