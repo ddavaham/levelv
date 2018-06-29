@@ -2,7 +2,9 @@
 
 namespace LevelV\Http\Controllers;
 
-use Carbon, Request, Session;
+use Auth, Carbon, Request, Session;
+use LevelV\Models\Member;
+use LevelV\Models\ESI\Character;
 
 class AuthController extends Controller
 {
@@ -19,8 +21,7 @@ class AuthController extends Controller
             $ssoResponse = Session::get(Request::get('state'));
             Session::forget(Request::get('state'));
             $getMemberData = $this->dataCont->getMemberData($ssoResponse->get('CharacterID'), true);
-            if (!$getMemberData->status) {
-                activity(__METHOD__)->withProperties($getMemberData->payload)->log($getMemberData->payload->message);
+            if (!$getMemberData->get('status')) {
                 Session::flash('alert', [
                     "header" => "Unable to Retrieve Member Data",
                     'message' => "Unable to verify member data, please try again later.",
@@ -29,8 +30,8 @@ class AuthController extends Controller
                 ]);
                 return redirect(route('auth.login'));
             }
-            $getMemberData = $getMemberData->payload;
-            $member = Member::firstOrNew(['id' => $getMemberData->id]);
+            $getMemberData = $getMemberData->get('payload');
+            $member = Member::firstOrNew(['id' => $getMemberData->get('id')]);
             if ($member->exists) {
                 Auth::login($member);
                 if ($member->disabled) {
@@ -46,8 +47,8 @@ class AuthController extends Controller
                 }
             } else {
                 $member->fill([
-                    'raw_hash' => $getMemberData->get('CharacterOwnerHash'),
-                    'hash' => hash('sha1', $getMemberData->get('CharacterOwnerHash'))
+                    'raw_hash' => $ssoResponse->get('CharacterOwnerHash'),
+                    'hash' => hash('sha1', $ssoResponse->get('CharacterOwnerHash')),
                 ]);
                 $member->save();
                 Auth::login($member);
@@ -55,6 +56,7 @@ class AuthController extends Controller
             }
         }
         $state_hash = str_random(16);
+        $scopes = collect(config("services.eve.scopes"))->sort()->values()->implode(" ");
         $state = collect([
             "redirectTo" => "auth.login"
         ]);
@@ -63,5 +65,12 @@ class AuthController extends Controller
         return view("auth.login", [
            'ssoUrl' => $ssoUrl
         ]);
+    }
+
+    public function logout()
+    {
+        Session::flush();
+        Auth::logout();
+        return redirect(route('home'));
     }
 }
