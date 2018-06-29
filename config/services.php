@@ -48,13 +48,11 @@ return [
             ]
         ],
         'scopes'=>[
-            "esi-clones.read_clones.v1",
-            "esi-clones.read_implants.v1",
-            "esi-skills.read_skills.v1",
-            "esi-skills.read_skillqueue.v1",
-            "esi-universe.read_structures.v1",
-            "esi-fittings.read_fittings.v1",
-            "esi-fittings.write_fittings.v1"
+            'readCharacterClones' => "esi-clones.read_clones.v1",
+            'readCharacterImplants' => "esi-clones.read_implants.v1",
+            'readCharacterSkills' => "esi-skills.read_skills.v1",
+            'readCharacterSkillQueue' => "esi-skills.read_skillqueue.v1",
+            'readUniverseStructures' => "esi-universe.read_structures.v1",
         ],
         'dogma' => [
             'attributes' => [
