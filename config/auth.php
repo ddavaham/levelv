@@ -67,7 +67,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => LevelV\Member::class,
+            'model' => LevelV\Models\Member::class,
         ],
 
         // 'users' => [
