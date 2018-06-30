@@ -2,7 +2,7 @@
 
 namespace LevelV\Traits;
 
-use ESIK\Models\JobStatus;
+use LevelV\Models\JobStatus;
 
 trait Trackable
 {

@@ -17,6 +17,8 @@ class CreateMembersTable extends Migration
             $table->unsignedBigInteger('id');
             $table->unsignedBigInteger('main')->nullable();
             $table->unsignedInteger('total_sp')->nullable();
+            $table->json('attributes')->nullable();
+            $table->json('implants')->nullable();
             $table->unsignedBigInteger('clone_location_id')->nullable();
             $table->enum('clone_location_type', ['station', 'structure'])->nullable();
             $table->string('raw_hash');

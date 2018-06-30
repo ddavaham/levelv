@@ -42,17 +42,58 @@ return [
         ],
         'sde' => [
             'import' => [
-                'invGroups','invCategories','mapRegions',
-                'mapConstellations', 'chrAncestries', 'chrBloodlines',
-                'chrRaces', 'chrFactions'
+                'chrAncestries',
+                'chrBloodlines',
+                'chrRaces',
+                'invGroups',
+                'invCategories',
+                'mapRegions',
+                'mapConstellations',
             ]
         ],
-        'scopes'=>[
-            'readCharacterClones' => "esi-clones.read_clones.v1",
-            'readCharacterImplants' => "esi-clones.read_implants.v1",
-            'readCharacterSkills' => "esi-skills.read_skills.v1",
-            'readCharacterSkillQueue' => "esi-skills.read_skillqueue.v1",
-            'readUniverseStructures' => "esi-universe.read_structures.v1",
+        'scopes'=> [
+            [
+                'key' => "readCharacterClones",
+                'title' => "Read Character Clones",
+                'scope' => "esi-clones.read_clones.v1",
+                'desc' => "Scope required to access this characters clones."
+            ],
+            [
+                'key' => "readCharacterImplants",
+                'title' => "Read Character Implants",
+                'scope' => "esi-clones.read_implants.v1",
+                'desc' => "Returns your current clones implants. Requried to calculate skill training time."
+            ],
+            [
+                'key' => "readCharacterSkillz",
+                'title' => "Read Character Skillz",
+                'scope' => "esi-skills.read_skills.v1",
+                'desc' => "Scope required to access this characters skills and current attributes."
+            ],
+            [
+                'key' => "readCharacterSkillQueue",
+                'title' => "Read Character Skill Queue",
+                'scope' => "esi-skills.read_skillqueue.v1",
+                'desc' => "Scope required to read this character skill queue."
+            ],
+            [
+                'key' => "readCharacterFittings",
+                'title' => "Read Character Fittings",
+                'scope' => "esi-fittings.read_fittings.v1",
+                'desc' => "Scope required to access this characters fittings."
+            ],
+            [
+                'key' => "writeCharacterFittings",
+                'title' => "Write Character Fittings",
+                'scope' => "esi-fittings.write_fittings.v1",
+                'desc' => "Scope required to write a fitting to this character in game fitting manager."
+            ],
+            [
+                'key' => "readUniverseStructures",
+                'title' => "Read Universe Structures",
+                'scope' => "esi-universe.read_structures.v1",
+                'desc' => "Scope required to parse structure Id to human readable name. Without this scope, structure names will display as Unknown Structure <StructureId> unless we learned about that structure from another character."
+            ],
         ],
         'dogma' => [
             'attributes' => [
@@ -82,6 +123,7 @@ return [
 
     "bitbucket" => [
         "urls" => [
+            "overview" => "https://bitbucket.org/devoverlord/levelv",
             "issues" => "https://bitbucket.org/devoverlord/levelv/issues",
             "commit" => "https://bitbucket.org/devoverlord/levelv/commits",
             "branches" => "https://bitbucket.org/devoverlord/levelv/branches"

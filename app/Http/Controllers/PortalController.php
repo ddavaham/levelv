@@ -4,10 +4,6 @@ namespace LevelV\Http\Controllers;
 
 use Auth, Carbon, Request, Session, Validator;
 use LevelV\Models\Member;
-use LevelV\Models\SDE\Group;
-use LevelV\Models\ESI\{Station, System,Type};
-use LevelV\Jobs\Members\GetMemberAssets;
-use LevelV\Http\Controllers\DataController;
 
 class PortalController extends Controller
 {
@@ -33,16 +29,16 @@ class PortalController extends Controller
             }
             $selected = collect(Request::get('scopes'))->keys();
             $authorized = $selected->map(function($scope) {
-                return config('services.eve.scopes')[$scope];
+                return collect(config('services.eve.scopes'))->recursive()->where('key', $scope)->first()->get('scope');
             });
-
             $authorized = $authorized->sort()->values()->implode(' ');
+            $hashedScopes = hash('sha1', $authorized);
 
             $state_hash = str_random(16);
             $state = collect([
                 "redirectTo" => "welcome",
                 "additionalData" => collect([
-                    'authorizedScopesHash' => hash('sha1', $authorized)
+                    'authorizedScopesHash' => $hashedScopes
                 ])
             ]);
             Session::put($state_hash, $state);
@@ -61,7 +57,7 @@ class PortalController extends Controller
                 return redirect(route('welcome'));
             }
             $ssoResponse = Session::get(Request::get('state'));
-            Session::forget(Request::get('state'));
+            // Session::forget(Request::get('state'));
             $hashedResponseScopes = hash('sha1', collect(explode(' ', $ssoResponse->get('Scopes')))->sort()->values()->implode(' '));
             if ($hashedResponseScopes !== $ssoResponse->get('authorizedScopesHash')) {
                 Session::flash('alert', [
@@ -106,61 +102,64 @@ class PortalController extends Controller
             ]);
 
             $member->save();
-            $alert = collect();
-            $now = now();
-            $dispatchedJobs = collect();
-            $dispatchedJobs->dd();
-            if ($member->scopes->contains(config('services.eve.scopes.readCharacterClones'))) {
-                $job = new \LevelV\Jobs\Members\GetMemberClones($member->id);
+            $dispatchedJobs = collect(); $now = now();
+            // if ($member->scopes->contains("esi-clones.read_clones.v1")) {
+            //     $job = new \LevelV\Jobs\Member\GetMemberClones($member->id);
+            //     $job->delay($now);
+            //     $this->dispatch($job);
+            //     $dispatchedJobs->push($job->getJobStatusId());
+            //     $now = $now->addSeconds(1);
+            // }
+            //
+            // if ($member->scopes->contains("esi-clones.read_implants.v1")) {
+            //     $job = new \LevelV\Jobs\Member\GetMemberImplants($member->id);
+            //     $job->delay($now);
+            //     $this->dispatch($job);
+            //     $dispatchedJobs->push($job->getJobStatusId());
+            //     $now = $now->addSeconds(1);
+            // }
+            //
+            // if ($member->scopes->contains("esi-skills.read_skills.v1")) {
+            //     $job = new \LevelV\Jobs\Member\GetMemberAttributes($member->id);
+            //     $job->delay($now);
+            //     $this->dispatch($job);
+            //     $dispatchedJobs->push($job->getJobStatusId());
+            //     $now = $now->addSeconds(1);
+            //
+            //     $job = new \LevelV\Jobs\Member\GetMemberSkillz($member->id);
+            //     $job->delay($now);
+            //     $this->dispatch($job);
+            //     $dispatchedJobs->push($job->getJobStatusId());
+            //     $now = $now->addSeconds(1);
+            // }
+            if ($member->scopes->contains("esi-skills.read_skillqueue.v1")) {
+                $job = new \LevelV\Jobs\Member\GetMemberSkillQueue($member->id);
                 $job->delay($now);
-                $this->dispatch($job);
+                $this->dispatchNow($job);
                 $dispatchedJobs->push($job->getJobStatusId());
                 $now = $now->addSeconds(1);
             }
-
-            if ($member->scopes->contains(config('services.eve.scopes.readCharacterImplants'))) {
-                $job = new \LevelV\Jobs\Members\GetMemberImplants($member->id);
-                $job->delay($now);
-                $this->dispatch($job);
-                $dispatchedJobs->push($job->getJobStatusId());
-                $now = $now->addSeconds(1);
-            }
-
-            if ($member->scopes->contains(config('services.eve.scopes.readCharacterSkills'))) {
-                $job = new \LevelV\Jobs\Members\GetMemberSkillz($member->id);
-                $job->delay($now);
-                $this->dispatch($job);
-                $dispatchedJobs->push($job->getJobStatusId());
-                $now = $now->addSeconds(1);
-            }
-
-            if ($member->scopes->contains(config('services.eve.scopes.readCharacterSkillQueue'))) {
-                $job = new \LevelV\Jobs\Members\GetMemberSkillQueue($member->id);
-                $job->delay($now);
-                $this->dispatch($job);
-                $dispatchedJobs->push($job->getJobStatusId());
-                $now = $now->addSeconds(1);
-            }
-
+            dump("No redirect for you!!");
+            abort(200);
             $member->jobs()->attach($dispatchedJobs->toArray());
             Session::flash('alert', [
-                "header" => "Welcome to ESI Knife ". Auth::user()->info->name,
-                'message' => "You account has been setup successfully. However, there is a lot of data we need to pull in from the API to properly display your profile to you, so bare with us while we talk with ESI and whip our slaves to get that data for you. It shouldn't take long. You can use the Job Status module to the right to check on the status of these jobs. When you have zero (0) pending jobs, it is okay to load up your character, otherwise, one of pages you visit may crash because we don't have all the data yet.",
+                "header" => "Welcome to " . config('app.name') ." ". Auth::user()->info->name,
+                'message' => "You account has been setup successfully. However, there is a lot of data we need to pull in from the API to properly display your profile to you, so bare with us while we talk with ESI to get that data for you. It shouldn't take long. You can use the Job Status module to the right to check on the status of these jobs. When you have zero (0) pending jobs, it is okay to load up your character, otherwise, one of pages you visit may crash because we don't have all the data yet.",
                 'type' => 'success',
                 'close' => 1
             ]);
+
             if (Session::has('to')) {
                 if (starts_with(Session::get('to'), url('/welcome'))) {
                     return redirect(route('dashboard'));
                 }
-                if (!starts_with(Session::get('to'), url('/settings/grant/'))) {
-                    $to = Session::get('to');
-                    Session::forget(Session::get('to'));
-                    return redirect($to);
-                }
+                $to = Session::get('to');
+                Session::forget(Session::get('to'));
+                return redirect($to);
             }
             return redirect(route('dashboard'));
         }
-        return view('portal.welcome');
+        $scopes = collect(config('services.eve.scopes'))->recursive();
+        return view('portal.welcome')->withScopes($scopes);
     }
 }

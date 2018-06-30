@@ -11,14 +11,12 @@ use Illuminate\Queue\QueueManager;
 use Illuminate\Support\ServiceProvider;
 
 use Carbon;
-use ESIK\Models\JobStatus;
+use LevelV\Models\JobStatus;
 
 class JobStatusProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/migrations');
-
 	    /** @var JobStatus $entityClass */
 	    $entityClass = app()->getAlias(JobStatus::class);
 

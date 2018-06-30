@@ -37,7 +37,7 @@ class GetCorporation implements ShouldQueue
      */
     public function handle()
     {
-        $getCorporation = $this->dataCont->getCorporation($id);
+        $getCorporation = $this->dataCont->getCorporation($this->id);
         $status = $getCorporation->get('status');
         $payload = $getCorporation->get('payload');
         if (!$status) {

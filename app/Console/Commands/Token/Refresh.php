@@ -5,6 +5,7 @@ namespace LevelV\Console\Commands\Token;
 use Illuminate\Console\Command;
 
 use LevelV\Models\Member;
+use LevelV\Http\Controllers\SSOController;
 
 class Refresh extends Command
 {
@@ -30,6 +31,7 @@ class Refresh extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->ssoCont = new SSOController();
     }
 
     /**

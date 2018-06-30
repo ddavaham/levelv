@@ -48,7 +48,7 @@ class HttpController extends Controller
                     $message .= " || Error: ". $curl->response->error;
                 }
             }
-            $response->payload->message = $message;
+            $response->get('payload')->put('message', $message);
             activity((new \ReflectionClass($this))->getShortName())->withProperties($response->toArray())->log($message);
         }
 
@@ -245,18 +245,6 @@ class HttpController extends Controller
             "Content-Type" => "application/json",
             "User-Agent" => config("services.eve.userAgent")
         ], 'get', config('services.eve.urls.esi'),"/v2/dogma/effects/{$id}/", []);
-    }
-
-    public function getSearch ($search, $category, $strict=false)
-    {
-        return $this->request([
-            "Content-Type" => "application/json",
-            "User-Agent" => config('services.eve.userAgent')
-        ], 'get', config('services.eve.urls.esi'),"/v2/search/", [
-            'search' => $search,
-            'categories' => $category,
-            'strict' => $strict
-        ]);
     }
 
     public function postUniverseNames ($ids)

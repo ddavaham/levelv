@@ -202,6 +202,7 @@ return [
         // LevelV\Providers\BroadcastServiceProvider::class,
         LevelV\Providers\EventServiceProvider::class,
         LevelV\Providers\RouteServiceProvider::class,
+        LevelV\Providers\JobStatusProvider::class,
 
     ],
 

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMemberSkillzsTable extends Migration
+class CreateFittingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateMemberSkillzsTable extends Migration
      */
     public function up()
     {
-        Schema::create('member_skillzs', function (Blueprint $table) {
+        Schema::create('fittings', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ class CreateMemberSkillzsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('member_skillzs');
+        Schema::dropIfExists('fittings');
     }
 }

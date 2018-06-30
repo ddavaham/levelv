@@ -37,7 +37,7 @@ class GetCharacter implements ShouldQueue
      */
     public function handle()
     {
-        $getCharacter = $this->dataCont->getCharacter($id);
+        $getCharacter = $this->dataCont->getCharacter($this->id);
         $status = $getCharacter->get('status');
         $payload = $getCharacter->get('payload');
         if (!$status) {

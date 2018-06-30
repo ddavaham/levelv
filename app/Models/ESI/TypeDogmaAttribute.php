@@ -4,7 +4,7 @@ namespace LevelV\Models\ESI;
 
 use Illuminate\Database\Eloquent\Model;
 
-use ESIK\Traits\HasCompositePrimaryKey;
+use LevelV\Traits\HasCompositePrimaryKey;
 
 class TypeDogmaAttribute extends Model
 {

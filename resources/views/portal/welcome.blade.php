@@ -20,45 +20,33 @@
                 <form action="{{ route('welcome') }}" method="post">
                     <div class="row">
                         <div class="col-md-6 offset-md-3">
-                            <ul class="list-group">
-                                <li class="list-group-item">
+                            <div class="card">
+                                <div class="card-header">
                                     <div class="float-right">
-                                        <a href="#" id="all">[Select All]</a>
+                                        <a href="#" id="all">[Un/Select All]</a>
                                     </div>
                                     <strong>Character Information</strong>
-                                </li>
-                                <label for="readCharacterClones" class="mb-0">
-                                    <li class="list-group-item py-auto">
-                                        <input type="checkbox" id="readCharacterClones" name="scopes[readCharacterClones]" class="item" /> <span class="ml-2">Read Character Clones</span>
-                                    </li>
-                                </label>
+                                </div>
+                            </div>
+                            <div class="accordian" id="accordian">
+                                @foreach ($scopes as $scope)
+                                    <div class="card">
+                                        <div class="card-header" id="headingOne">
+                                            <label for="{{ $scope->get('key') }}" class="mt-2 mb-0">
+                                                <input type="checkbox" id="{{ $scope->get('key') }}" name="scopes[{{ $scope->get('key') }}]" class="item" /> <span class="ml-2">{{ $scope->get('title') }}</span>
+                                            </label>
+                                            <button type="button" class="btn btn-secondary float-right" data-toggle="collapse" data-target="#{{ $scope->get('key') }}body">?</button>
+                                        </div>
 
-                                <label for="readCharacterImplants" class="mb-0">
-                                    <li class="list-group-item py-auto">
-                                        <input type="checkbox" id="readCharacterImplants" name="scopes[readCharacterImplants]" class="item" /> <span class="ml-2">Read Character Implants</span>
-                                    </li>
-                                </label>
-
-                                <label for="readCharacterSkills" class="mb-0">
-                                    <li class="list-group-item py-auto">
-                                        <input type="checkbox" id="readCharacterSkills" name="scopes[readCharacterSkills]" class="item" /> <span class="ml-2">Read Character Skills</span>
-                                    </li>
-                                </label>
-
-                                <label for="readCharacterSkillQueue" class="mb-0">
-                                    <li class="list-group-item py-auto">
-                                        <input type="checkbox" id="readCharacterSkillQueue" name="scopes[readCharacterSkillQueue]" class="item" /> <span class="ml-2">Read Character Skill Queue</span>
-                                    </li>
-                                </label>
-
-                                <label for="readUniverseStructures" class="mb-0">
-                                    <li class="list-group-item py-auto">
-                                        <input type="checkbox" id="readUniverseStructures" name="scopes[readUniverseStructures]" class="item" /> <span class="ml-2">Read Structure Names</span>
-                                    </li>
-                                </label>
-                            </ul>
+                                        <div id="{{ $scope->get('key') }}body" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                                            <div class="card-body">
+                                                {{ $scope->get('desc') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-
                     </div>
                     <hr />
                     <div class="row">
@@ -78,7 +66,8 @@
 @section('js')
     <script>
         $('#all').on('click', function(){
-            $(':checkbox.item').prop('checked', true);
+            var checkboxes = $(':checkbox.item');
+            checkboxes.prop('checked', !checkboxes.prop('checked'));
         });
     </script>
 @endsection

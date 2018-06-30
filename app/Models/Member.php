@@ -5,7 +5,7 @@ namespace LevelV\Models;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-use LevelV\Models\ESI\Character;
+use LevelV\Models\ESI\{Character, Type};
 
 class Member extends Authenticatable
 {

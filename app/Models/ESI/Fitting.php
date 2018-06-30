@@ -1,10 +1,10 @@
 <?php
 
-namespace LevelV\Models;
+namespace LevelV\Models\ESI;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MemberClone extends Model
+class Fitting extends Model
 {
     //
 }

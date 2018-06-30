@@ -37,7 +37,7 @@ class GetAlliance implements ShouldQueue
      */
     public function handle()
     {
-        $getAlliance = $this->dataCont->getAlliance($id);
+        $getAlliance = $this->dataCont->getAlliance($this->id);
         $status = $getAlliance->get('status');
         $payload = $getAlliance->get('payload');
         if (!$status) {

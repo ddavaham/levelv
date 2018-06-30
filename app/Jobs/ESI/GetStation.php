@@ -37,7 +37,7 @@ class GetStation implements ShouldQueue
      */
     public function handle()
     {
-        $getStation = $this->dataCont->getStation($id);
+        $getStation = $this->dataCont->getStation($this->id);
         $status = $getStation->get('status');
         $payload = $getStation->get('payload');
         if (!$status) {
