@@ -2,6 +2,7 @@
 
 namespace LevelV\Models;
 
+use Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -25,6 +26,24 @@ class Member extends Authenticatable
     public function getScopesAttribute($scopes)
     {
         return collect(json_decode($scopes, true));
+    }
+
+    public function getAttributesAttribute($attributes)
+    {
+        $attributes = collect(json_decode($attributes, true));
+        if ($attributes->has('last_remap_date')) {
+            $attributes->put('last_remap_date', Carbon::parse($attributes->get('last_remap_date')));
+        }
+        if ($attributes->has('accrued_remap_cooldown_date')) {
+            $attributes->put('accrued_remap_cooldown_date', Carbon::parse($attributes->get('accrued_remap_cooldown_date')));
+        }
+        return $attributes;
+    }
+
+    public function getImplantsAttribute($implants)
+    {
+        $implants = collect(json_decode($implants, true));
+        return Type::whereIn('id', $implants->toArray())->with('implantAttributes')->get();
     }
 
     public function getRememberToken()
@@ -72,7 +91,7 @@ class Member extends Authenticatable
         return $this->belongsToMany(Type::class, 'member_implants', 'member_id', 'type_id');
     }
 
-    public function jumpClones()
+    public function clones()
     {
         return $this->hasMany(MemberJumpClone::class, 'id', 'id');
     }
@@ -86,7 +105,7 @@ class Member extends Authenticatable
     {
         return $this->belongsToMany(Type::class, 'member_skillz', 'id', 'skill_id')->withPivot('active_skill_level','trained_skill_level', 'skillpoints_in_skill');
     }
-    public function skillQueue()
+    public function queue()
     {
         return $this->belongsToMany(Type::class, 'member_skill_queue', 'id', 'skill_id')->withPivot('queue_position', 'finished_level', 'level_start_sp', 'level_end_sp', 'training_start_sp', 'start_date', 'finish_date');
     }

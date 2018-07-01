@@ -4,8 +4,8 @@ namespace LevelV\Models\ESI;
 
 use Illuminate\Database\Eloquent\Model;
 
-use ESIK\Models\MemberLocation;
-use ESIK\Models\SDE\Constellation;
+use LevelV\Models\MemberLocation;
+use LevelV\Models\SDE\Constellation;
 
 class System extends Model
 {
@@ -27,11 +27,6 @@ class System extends Model
     public function jumpClones ()
     {
         return $this->morphOne(MemberJumpClones::class, "jumpClones");
-    }
-
-    public function location()
-    {
-        return $this->morphOn(MemberBookmark::class, 'location');
     }
 
     public function constellation()

@@ -4,8 +4,8 @@ namespace LevelV\Models\ESI;
 
 use Illuminate\Database\Eloquent\Model;
 
-use ESIK\Models\{MemberLocation, MemberWalletTransaction};
-use ESIK\Models\ESI\Contract;
+use LevelV\Models\{MemberLocation, MemberWalletTransaction};
+use LevelV\Models\ESI\Contract;
 
 class Structure extends Model
 {
@@ -19,31 +19,13 @@ class Structure extends Model
         return $this->morphOne(MemberLocation::class, 'info');
     }
 
-    public function clone ()
+    public function death_clone ()
     {
-        return $this->morphOne(Member::class, "clone");
+        return $this->morphOne(Member::class, "death_clone");
     }
 
-    public function jumpClones ()
+    public function clone_location ()
     {
-        return $this->morphOne(MemberJumpClones::class, "location");
-    }
-
-    public function bookmark_location()
-    {
-        return $this->morphOne(MemberBookmark::class, 'location');
-    }
-
-    public function wallet_transactions_location()
-    {
-        return $this->morphOne(MemberWalletTransaction::class, 'location');
-    }
-
-    public function start_location () {
-        return $this->morphOne(Contract::class, 'start');
-    }
-
-    public function end_location () {
-        return $this->morphOne(Contract::class, 'end');
+        return $this->morphOne(MemberJumpClones::class, "clone_location");
     }
 }

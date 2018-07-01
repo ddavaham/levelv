@@ -4,7 +4,7 @@ namespace LevelV\Models\ESI;
 
 use Illuminate\Database\Eloquent\Model;
 
-use ESIK\Models\SDE\Group;
+use LevelV\Models\SDE\Group;
 
 class Type extends Model
 {
@@ -25,12 +25,12 @@ class Type extends Model
 
     public function skillAttributes()
     {
-        return $this->hasMany(TypeDogmaAttribute::class, 'type_id')->whereIn('attribute_id', [182,183,184,1285,1289,1290,277,278,279,1286,1287,1288]);
+        return $this->hasMany(TypeDogmaAttribute::class, 'type_id')->whereIn('attribute_id', config('services.eve.dogma.attributes.skillz.all'));
     }
 
-    public function effects()
+    public function implantAttributes()
     {
-        return $this->hasMany(TypeDogmaEffect::class, 'type_id');
+        return $this->hasMany(TypeDogmaAttribute::class, 'type_id')->whereIn('attribute_id', config('services.eve.dogma.attributes.implants.all'));
     }
 
     public function group()

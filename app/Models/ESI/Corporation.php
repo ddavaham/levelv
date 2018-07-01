@@ -2,7 +2,7 @@
 
 namespace LevelV\Models\ESI;
 
-use ESIK\Models\MemberWalletTransaction;
+use LevelV\Models\MemberWalletTransaction;
 use Illuminate\Database\Eloquent\Model;
 
 class Corporation extends Model

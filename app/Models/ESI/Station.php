@@ -4,8 +4,8 @@ namespace LevelV\Models\ESI;
 
 use Illuminate\Database\Eloquent\Model;
 
-use ESIK\Models\{MemberLocation, MemberWalletTransaction};
-use ESIK\Models\ESI\Contract;
+use LevelV\Models\{MemberLocation, MemberWalletTransaction};
+use LevelV\Models\ESI\Contract;
 
 class Station extends Model
 {
@@ -14,30 +14,18 @@ class Station extends Model
     public $incrementing = false;
     protected static $unguarded = true;
 
-    public function location_info ()
+    public function info ()
     {
-        return $this->morphOne(MemberLocation::class);
+        return $this->morphOne(MemberLocation::class, 'info');
     }
 
-    public function clone_info ()
+    public function death_clone ()
     {
-        return $this->morphOne(MemberLocation::class);
+        return $this->morphOne(Member::class, "death_clone");
     }
 
-    public function wallet_transactions_location()
+    public function clone_location ()
     {
-        return $this->morphOne(MemberWalletTransaction::class, 'location');
-    }
-
-    public function start_location () {
-        return $this->morphOne(Contract::class, 'start');
-    }
-
-    public function end_location () {
-        return $this->morphOne(Contract::class, 'end');
-    }
-
-    public function nameDotlanFormat() {
-        return implode('_', explode(' ', $this->name));
+        return $this->morphOne(MemberJumpClones::class, "clone_location");
     }
 }
