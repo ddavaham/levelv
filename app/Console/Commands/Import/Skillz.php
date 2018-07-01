@@ -8,23 +8,21 @@ use LevelV\Models\SDE\{Group};
 use LevelV\Models\ESI\{Type};
 use LevelV\Http\Controllers\DataController;
 
-class Ships extends Command
+class Skillz extends Command
 {
-    public $dataCont;
-
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:ships';
+    protected $signature = 'import:skillz';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Imports all ships, and their dogma attributes/effects into the database';
+    protected $description = 'Import all skillz.';
 
     /**
      * Create a new command instance.
@@ -44,13 +42,13 @@ class Ships extends Command
      */
     public function handle()
     {
-        $shipGroups = Group::where('category_id', 6)->where('published', 1)->get();
-        if ($shipGroups->count() < 43) {
-            dd("43 groups are suppose to be in the database to conduct this operation. Please run Import:SDE before runnig this command.");
+        $skillGroups = Group::where('category_id', 16)->where('published', 1)->get();
+        if ($skillGroups->count() < 23) {
+            dd("23 groups are suppose to be in the database to conduct this operation. Please run Import:SDE before runnig this command.");
         }
-        $bar = $this->output->createProgressBar($shipGroups->count());
+        $bar = $this->output->createProgressBar($skillGroups->count());
         $types = collect();
-        $shipGroups->each(function ($group) use (&$types, &$bar) {
+        $skillGroups->each(function ($group) use (&$types, &$bar) {
             $groupRequest = $this->dataCont->getGroup($group->id);
             $status = $groupRequest->get('status');
             $payload = $groupRequest->get('payload');
@@ -77,6 +75,5 @@ class Ships extends Command
             }
             $x++;
         });
-
     }
 }
