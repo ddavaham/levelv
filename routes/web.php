@@ -12,6 +12,8 @@
 */
 
 Route::match(['GET'],'/', 'PublicController@home')->name('home');
+Route::match(['GET'],'/skillplans', 'SkillPlanController@list')->name('skillplans.list');
+Route::match(['GET'],'/fittings', 'FittingController@list')->name('fittings.list');
 // Route::match(['GET'],'/donate', 'PublicController@donate')->name('donate');
 
 
@@ -27,16 +29,15 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::match(['GET'], '/dashboard', 'PortalController@dashboard')->name('dashboard');
     Route::match(['GET', 'POST'], '/welcome', 'PortalController@welcome')->name('welcome');
-
-    Route::match(['GET'], '/{member}/overview', 'PortalController@overview')->name('overview')->middleware("authorized");
-    Route::match(['GET'], '/{member}/clones', 'PortalController@clones')->name('clones')->middleware("authorized:esi-clones.read_clones.v1");
-    Route::match(['GET'], '/{member}/skills', 'PortalController@skills')->name('skillz')->middleware("authorized:esi-skills.read_skills.v1");
-    Route::match(['GET'], '/{member}/skills/flyable', 'PortalController@flyable')->name('skillz.flyable')->middleware("authorized:esi-skills.read_skills.v1");
-    Route::match(['GET'], '/{member}/skillqueue', 'PortalController@queue')->name('skillqueue')->middleware("authorized:esi-skills.read_skillqueue.v1");
+    Route::match(['GET'], '/view/{member}', 'PortalController@overview')->name('overview');
+    Route::match(['GET'], '/view/{member}/clones', 'PortalController@clones')->name('clones');
+    Route::match(['GET'], '/view/{member}/skills', 'PortalController@skills')->name('skillz');
+    Route::match(['GET'], '/view/{member}/skills/flyable', 'PortalController@flyable')->name('skillz.flyable');
+    Route::match(['GET'], '/view/{member}/queue', 'PortalController@queue')->name('queue');
+    Route::match(['GET'], '/view/{member}/attributes', 'PortalController@attributes')->name('attributes');
 
     Route::match(['GET'], '/settings', 'SettingController@index')->name('settings.index');
     Route::match(['GET', 'DELETE'], '/settings/token', 'SettingController@token')->name('settings.token');
-    
 });
 
 

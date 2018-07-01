@@ -223,6 +223,14 @@ class HttpController extends Controller
         ], 'get', config('services.eve.urls.esi'),"/v2/universe/systems/{$id}/", []);
     }
 
+    public function getUniverseGroupsGroupId ($id)
+    {
+        return $this->request([
+            "Content-Type" => "application/json",
+            "User-Agent" => config("services.eve.userAgent")
+        ], 'get', config('services.eve.urls.esi'),"/v1/universe/groups/{$id}/", []);
+    }
+
     public function getUniverseTypesTypeId ($id)
     {
         return $this->request([

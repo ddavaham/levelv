@@ -12,10 +12,82 @@ class PortalController extends Controller
         $this->dataCont = new DataController;
     }
 
+    public function attributes(int $member)
+    {
+        $member = Member::findOrFail($member);
+        return view('portal.attributes')->withMember($member);
+    }
+
+    public function clones(int $member)
+    {
+        $member = Member::findOrFail($member);
+        $member->clones->dd();
+        return view('portal.attributes')->withMember($member);
+    }
+
     public function dashboard ()
     {
         Auth::user()->load('jobs');
         return view('portal.dashboard');
+    }
+
+    public function overview (int $member)
+    {
+        $member = Member::findOrFail($member);
+        $skillList = collect();
+        $member->skillz->load('group')->each(function ($skill) use ($member, $skillList) {
+            if (!$skillList->has($skill->group_id)) {
+                $skillList->put($skill->group_id, collect([
+                    'name' => $skill->group->name,
+                    'key' => implode('_', explode(' ', strtolower($skill->group->name))),
+                    'skillz' => $member->skillz->where('group_id', $skill->group_id),
+                    'count' => $member->skillz->where('group_id', $skill->group_id)->count(),
+                    'total_sp' => $member->skillz->where('group_id', $skill->group_id)->pluck('pivot.skillpoints_in_skill')->sum()
+                ]));
+            }
+        });
+
+        $skillList = $skillList->sortBy('name');
+
+        $nextSkillComplete = $member->queue()->orderby('member_skill_queue.queue_position', 'asc')->first();
+
+
+        return view('portal.overview', [
+            'member' => $member,
+            'skillList' => $skillList,
+            'nextSkillComplete' => $nextSkillComplete
+        ]);
+    }
+
+    public function queue(int $member)
+    {
+        $member = Member::findOrFail($member);
+        $groupsTraining = collect();
+        $spTraining = collect();
+
+        $member->queue->load('group')->each(function ($item) use ($spTraining, $groupsTraining) {
+            if (!$groupsTraining->has($item->group_id)) {
+                $item->training = 0;
+                $groupsTraining->put($item->group_id, $item->group);
+            }
+            $groupsTraining->get($item->group_id)->training = $groupsTraining->get($item->group_id)->training + 1;
+            if (!is_null($item->pivot->level_end_sp) && !is_null($item->pivot->training_start_sp)) {
+                $spTraining->push($item->pivot->level_end_sp - $item->pivot->training_start_sp);
+            }
+        });
+        $queueComplete = "No Skills are currently training";
+        if ($member->queue->isNotEmpty()) {
+            $lastSkill = $member->queue->last();
+
+            if (!is_null($lastSkill->pivot->finish_date)) {
+                $queueComplete = Carbon::parse($lastSkill->pivot->finish_date)->toDateTimeString();
+            }
+        }
+        return view('portal.queue', [
+            'groupsTraining' => $groupsTraining,
+            'spTraining' => $spTraining->sum(),
+            'queueComplete' => $queueComplete
+        ])->withMember($member);
     }
 
     public function welcome()
@@ -29,9 +101,9 @@ class PortalController extends Controller
             }
             $selected = collect(Request::get('scopes'))->keys();
             $authorized = $selected->map(function($scope) {
-                return collect(config('services.eve.scopes'))->recursive()->where('key', $scope)->first()->get('scope');
+                return collect(config('services.eve.scopes.core'))->recursive()->where('key', $scope)->first()->get('scope');
             });
-            $authorized = $authorized->sort()->values()->implode(' ');
+            $authorized = $authorized->merge(collect(config('services.eve.scopes.core'))->where('required', true)->pluck('scope'))->sort()->values()->implode(' ');
             $hashedScopes = hash('sha1', $authorized);
 
             $state_hash = str_random(16);
@@ -57,7 +129,7 @@ class PortalController extends Controller
                 return redirect(route('welcome'));
             }
             $ssoResponse = Session::get(Request::get('state'));
-            // Session::forget(Request::get('state'));
+            Session::forget(Request::get('state'));
             $hashedResponseScopes = hash('sha1', collect(explode(' ', $ssoResponse->get('Scopes')))->sort()->values()->implode(' '));
             if ($hashedResponseScopes !== $ssoResponse->get('authorizedScopesHash')) {
                 Session::flash('alert', [
@@ -103,44 +175,42 @@ class PortalController extends Controller
 
             $member->save();
             $dispatchedJobs = collect(); $now = now();
-            // if ($member->scopes->contains("esi-clones.read_clones.v1")) {
-            //     $job = new \LevelV\Jobs\Member\GetMemberClones($member->id);
-            //     $job->delay($now);
-            //     $this->dispatch($job);
-            //     $dispatchedJobs->push($job->getJobStatusId());
-            //     $now = $now->addSeconds(1);
-            // }
-            //
-            // if ($member->scopes->contains("esi-clones.read_implants.v1")) {
-            //     $job = new \LevelV\Jobs\Member\GetMemberImplants($member->id);
-            //     $job->delay($now);
-            //     $this->dispatch($job);
-            //     $dispatchedJobs->push($job->getJobStatusId());
-            //     $now = $now->addSeconds(1);
-            // }
-            //
-            // if ($member->scopes->contains("esi-skills.read_skills.v1")) {
-            //     $job = new \LevelV\Jobs\Member\GetMemberAttributes($member->id);
-            //     $job->delay($now);
-            //     $this->dispatch($job);
-            //     $dispatchedJobs->push($job->getJobStatusId());
-            //     $now = $now->addSeconds(1);
-            //
-            //     $job = new \LevelV\Jobs\Member\GetMemberSkillz($member->id);
-            //     $job->delay($now);
-            //     $this->dispatch($job);
-            //     $dispatchedJobs->push($job->getJobStatusId());
-            //     $now = $now->addSeconds(1);
-            // }
-            if ($member->scopes->contains("esi-skills.read_skillqueue.v1")) {
-                $job = new \LevelV\Jobs\Member\GetMemberSkillQueue($member->id);
+            if ($member->scopes->contains("esi-clones.read_clones.v1")) {
+                $job = new \LevelV\Jobs\Member\GetMemberClones($member->id);
                 $job->delay($now);
-                $this->dispatchNow($job);
+                $this->dispatch($job);
                 $dispatchedJobs->push($job->getJobStatusId());
                 $now = $now->addSeconds(1);
             }
-            dump("No redirect for you!!");
-            abort(200);
+
+            if ($member->scopes->contains("esi-clones.read_implants.v1")) {
+                $job = new \LevelV\Jobs\Member\GetMemberImplants($member->id);
+                $job->delay($now);
+                $this->dispatch($job);
+                $dispatchedJobs->push($job->getJobStatusId());
+                $now = $now->addSeconds(1);
+            }
+
+            if ($member->scopes->contains("esi-skills.read_skills.v1")) {
+                $job = new \LevelV\Jobs\Member\GetMemberAttributes($member->id);
+                $job->delay($now);
+                $this->dispatch($job);
+                $dispatchedJobs->push($job->getJobStatusId());
+                $now = $now->addSeconds(1);
+
+                $job = new \LevelV\Jobs\Member\GetMemberSkillz($member->id);
+                $job->delay($now);
+                $this->dispatch($job);
+                $dispatchedJobs->push($job->getJobStatusId());
+                $now = $now->addSeconds(1);
+            }
+            if ($member->scopes->contains("esi-skills.read_skillqueue.v1")) {
+                $job = new \LevelV\Jobs\Member\GetMemberSkillQueue($member->id);
+                $job->delay($now);
+                $this->dispatch($job);
+                $dispatchedJobs->push($job->getJobStatusId());
+                $now = $now->addSeconds(1);
+            }
             $member->jobs()->attach($dispatchedJobs->toArray());
             Session::flash('alert', [
                 "header" => "Welcome to " . config('app.name') ." ". Auth::user()->info->name,
@@ -159,7 +229,11 @@ class PortalController extends Controller
             }
             return redirect(route('dashboard'));
         }
-        $scopes = collect(config('services.eve.scopes'))->recursive();
-        return view('portal.welcome')->withScopes($scopes);
+        $requiredScopes = collect(config('services.eve.scopes.display.required'))->recursive();
+        $optionalScopes = collect(config('services.eve.scopes.display.optional'))->recursive();
+        return view('portal.welcome', [
+            'required' => $requiredScopes,
+            'optional' => $optionalScopes
+        ]);
     }
 }

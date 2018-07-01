@@ -52,48 +52,115 @@ return [
             ]
         ],
         'scopes'=> [
-            [
-                'key' => "readCharacterClones",
-                'title' => "Read Character Clones",
-                'scope' => "esi-clones.read_clones.v1",
-                'desc' => "Scope required to access this characters clones."
+            'core' => [
+                [
+                    'key' => "readCharacterClones",
+                    'title' => "Read Character Clones",
+                    'scope' => "esi-clones.read_clones.v1",
+                    'desc' => "Scope required to access this characters clones."
+                ],
+                [
+                    'key' => "readCharacterImplants",
+                    'title' => "Read Character Implants",
+                    'scope' => "esi-clones.read_implants.v1",
+                    'desc' => "Returns your current clones implants. Requried to calculate skill training time.",
+                    'required' => true
+                ],
+                [
+                    'key' => "readCharacterSkillz",
+                    'title' => "Read Character Skillz",
+                    'scope' => "esi-skills.read_skills.v1",
+                    'desc' => "Scope required to access this characters skills and current attributes.",
+                    'required' => true
+                ],
+                [
+                    'key' => "readCharacterSkillQueue",
+                    'title' => "Read Character Skill Queue",
+                    'scope' => "esi-skills.read_skillqueue.v1",
+                    'desc' => "Scope required to read this character skill queue.",
+                    'required' => true
+                ],
+                [
+                    'key' => "readCharacterFittings",
+                    'title' => "Read Character Fittings",
+                    'scope' => "esi-fittings.read_fittings.v1",
+                    'desc' => "Scope required to access this characters fittings."
+                ],
+                [
+                    'key' => "writeCharacterFittings",
+                    'title' => "Write Character Fittings",
+                    'scope' => "esi-fittings.write_fittings.v1",
+                    'desc' => "Scope required to write a fitting to this character in game fitting manager."
+                ],
+                [
+                    'key' => "readUniverseStructures",
+                    'title' => "Read Universe Structures",
+                    'scope' => "esi-universe.read_structures.v1",
+                    'desc' => "Scope required to parse structure Id to human readable name. Without this scope, structure names will display as Unknown Structure <StructureId> unless we learned about that structure from another character."
+                ],
             ],
-            [
-                'key' => "readCharacterImplants",
-                'title' => "Read Character Implants",
-                'scope' => "esi-clones.read_implants.v1",
-                'desc' => "Returns your current clones implants. Requried to calculate skill training time."
-            ],
-            [
-                'key' => "readCharacterSkillz",
-                'title' => "Read Character Skillz",
-                'scope' => "esi-skills.read_skills.v1",
-                'desc' => "Scope required to access this characters skills and current attributes."
-            ],
-            [
-                'key' => "readCharacterSkillQueue",
-                'title' => "Read Character Skill Queue",
-                'scope' => "esi-skills.read_skillqueue.v1",
-                'desc' => "Scope required to read this character skill queue."
-            ],
-            [
-                'key' => "readCharacterFittings",
-                'title' => "Read Character Fittings",
-                'scope' => "esi-fittings.read_fittings.v1",
-                'desc' => "Scope required to access this characters fittings."
-            ],
-            [
-                'key' => "writeCharacterFittings",
-                'title' => "Write Character Fittings",
-                'scope' => "esi-fittings.write_fittings.v1",
-                'desc' => "Scope required to write a fitting to this character in game fitting manager."
-            ],
-            [
-                'key' => "readUniverseStructures",
-                'title' => "Read Universe Structures",
-                'scope' => "esi-universe.read_structures.v1",
-                'desc' => "Scope required to parse structure Id to human readable name. Without this scope, structure names will display as Unknown Structure <StructureId> unless we learned about that structure from another character."
-            ],
+            'display' => [
+                'required' => [
+                    [
+                        'key' => "readCharacterImplants",
+                        'title' => "Read Character Implants",
+                        'desc' => "Returns your current clones implants. Requried to calculate skill training time."
+                    ],
+                    [
+                        'key' => "readCharacterSkillz",
+                        'title' => "Read Character Skillz",
+                        'desc' => "Scope required to access this characters skills and current attributes."
+                    ],
+                    [
+                        'key' => "readCharacterSkillQueue",
+                        'title' => "Read Character Skill Queue",
+                        'desc' => "Scope required to read this character skill queue."
+                    ],
+
+
+                ],
+                'optional' => [
+                    [
+                        'info' => [
+                            'key' => "fittings",
+                            'name' => "Fitting Management",
+                            'description' => "Scopes Required to manage your fitting. Read is necessary, write is optional"
+                        ],
+                        'scopes' =>[
+                            [
+                                'key' => "readCharacterFittings",
+                                'title' => "Read Character Fittings",
+                                'desc' => "Scope required to access this characters fittings."
+                            ],
+                            [
+                                'key' => "writeCharacterFittings",
+                                'title' => "Write Character Fittings",
+                                'desc' => "Scope required to write a fitting to this character in game fitting manager."
+                            ],
+                        ]
+                    ],
+                    [
+                        'info' => [
+                            'key' => "fittings",
+                            'name' => "Clone Management",
+                            'description' => "Scopes required to view your clones. Read Structure is optional, but if not included clones located in structure will display like so <code>Unknown Structure <strong>Structure ID</strong></code>"
+                        ],
+                        'scopes' => [
+                            [
+                                'key' => "readCharacterClones",
+                                'title' => "Read Character Clones",
+                                'desc' => "Scope required to access this characters clones."
+                            ],
+                            [
+                                'key' => "readUniverseStructures",
+                                'title' => "Read Universe Structures",
+                                'desc' => "Scope required to parse structure Id to human readable name. Without this scope, structure names will display as Unknown Structure <StructureId> unless we learned about that structure from another character."
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+
         ],
         'dogma' => [
             'attributes' => [
@@ -114,6 +181,22 @@ return [
                         1285 => 1286,
                         1289 => 1287,
                         1290 => 1288
+                    ]
+                ],
+                'implants' => [
+                    'all' => [
+                        331, 175,176,177,178,179
+                    ],
+                    'slot' => 331,
+                    'attributeModifiers' => [
+                        175,176,177,178,179
+                    ],
+                    'dictionary' => [
+                        175 => "Charisma Modifier",
+                        176 => "Intelligence Modifier",
+                        177 => "Memory Modifier",
+                        178 => "Perception Modifier",
+                        179 => "Willpower Modifier"
                     ]
                 ]
             ]

@@ -37,7 +37,6 @@ class DataController extends Controller
         return $this->httpCont->oauthVerifyAccessToken($token);
     }
 
-
     /**
     * Retreive the current public information, corporation, and if applicable, alliance that a character is in.
     *
@@ -236,9 +235,8 @@ class DataController extends Controller
         $member->save();
 
         if ($response->get('jump_clones')->isNotEmpty()) {
-            $jumpClones = collect();
-            $response->get('jump_clones')->keyBy('jump_clone_id')->each(function ($clone) use ($member, $jumpClones, $dispatchedJobs, &$now, &$x) {
-                $member->jumpClones()->updateOrCreate(['clone_id' => $clone->get('jump_clone_id')], [
+            $response->get('jump_clones')->keyBy('jump_clone_id')->each(function ($clone) use ($member, $dispatchedJobs, &$now, &$x) {
+                $member->clones()->updateOrCreate(['clone_id' => $clone->get('jump_clone_id')], [
                     'location_id' => $clone->get('location_id'),
                     'location_type' => $clone->get('location_type'),
                     'implants' => $clone->get('implants')->toJson()
@@ -301,7 +299,7 @@ class DataController extends Controller
     /**
     * Fetches and Parses the current skills of the member
     *
-    * @param ESIK\Models\Member $member Instance of Eloquent Member Model. This model contains the id and token we need to make the call.
+    * @param LevelV\Models\Member $member Instance of Eloquent Member Model. This model contains the id and token we need to make the call.
     * @return mixed
     */
     public function getMemberSkillz (Member $member)
@@ -354,7 +352,7 @@ class DataController extends Controller
             $class = \LevelV\Jobs\ESI\GetType::class;
             $shouldDispatch = $this->shouldDispatchJob($class, ['id' => $skill]);
             if ($shouldDispatch) {
-                $job = new $class($skill->get('skill_id'));
+                $job = new $class($skill);
                 $job->delay($now);
                 $this->dispatch($job);
                 $dispatchedJobs = $dispatchedJobs->push($job->getJobStatusId());
@@ -365,13 +363,13 @@ class DataController extends Controller
             $x++;
         });
 
-        $skillQueue = collect();
+        $queue = collect();
 
-        $response->each(function ($queue_item) use ($skillQueue) {
+        $response->each(function ($queue_item) use ($queue) {
             if ($queue_item->has('finish_date') && Carbon::parse($queue_item->get('finish_date'))->lt(Carbon::now())) {
                 return true;
             }
-            $skillQueue->put($queue_item->get('queue_position'), collect([
+            $queue->put($queue_item->get('queue_position'), collect([
                 'skill_id' => $queue_item->get('skill_id'),
                 'queue_position' => $queue_item->get('queue_position'),
                 'finished_level' => $queue_item->get('finished_level'),
@@ -383,8 +381,8 @@ class DataController extends Controller
             ]));
         });
         $member->jobs()->attach($dispatchedJobs->toArray());
-        $member->skillQueue()->detach();
-        $member->skillQueue()->attach($skillQueue->toArray());
+        $member->queue()->detach();
+        $member->queue()->attach($queue->toArray());
 
         return $request;
     }
@@ -392,7 +390,7 @@ class DataController extends Controller
     /**
     * Queries Database to see if the structure exists, if it doesn't a GET HTTP Request is made to ESI /universe/structure/{structure_id} to get the structure data
     *
-    * @param ESIK\Models\Member $member Member to use when performing query
+    * @param LevelV\Models\Member $member Member to use when performing query
     * @param int $id ID of the station/outpost to retrieve data for.
     *
     * @return mixed
@@ -539,7 +537,7 @@ class DataController extends Controller
                         $skillLvl = (int)$typeDogma->get($level)->get('value');
                         $dogmaSkill = Type::firstOrNew(['id' => $skillId]);
                         if (!$dogmaSkill->exists) {
-                            $job = new \ESIK\Jobs\ESI\GetType($skillId);
+                            $job = new \LevelV\Jobs\ESI\GetType($skillId);
                             $this->dispatch($job);
                         }
                         $typeSkillz->push(collect([
@@ -558,6 +556,11 @@ class DataController extends Controller
             'status' => true,
             'payload' => $type
         ]);
+    }
+
+    public function getGroup($id)
+    {
+        return $this->httpCont->getUniverseGroupsGroupId($id);
     }
 
     // Methods related to importing the SDE from zzeve

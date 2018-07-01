@@ -1,6 +1,6 @@
 @extends('layout.index')
 
-@section('title', 'Welcome To ESIKnife')
+@section('title', "Welcome To ". config('app.name'))
 
 @section('content')
     <div class="container">
@@ -19,21 +19,21 @@
                 @include('extra.alert')
                 <form action="{{ route('welcome') }}" method="post">
                     <div class="row">
-                        <div class="col-md-6 offset-md-3">
+                        <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <div class="float-right">
-                                        <a href="#" id="all">[Un/Select All]</a>
-                                    </div>
-                                    <strong>Character Information</strong>
+                                    <strong>Required Scopes</strong>
+                                </div>
+                                <div class="card-body">
+                                    The scopes listed below are required for this site to serve its purpose to you. If you do not want us to access the data protected by these scopes, then this site will be completely useless to you.
                                 </div>
                             </div>
                             <div class="accordian" id="accordian">
-                                @foreach ($scopes as $scope)
+                                @foreach ($required as $scope)
                                     <div class="card">
                                         <div class="card-header" id="headingOne">
                                             <label for="{{ $scope->get('key') }}" class="mt-2 mb-0">
-                                                <input type="checkbox" id="{{ $scope->get('key') }}" name="scopes[{{ $scope->get('key') }}]" class="item" /> <span class="ml-2">{{ $scope->get('title') }}</span>
+                                                <span class="ml-2">{{ $scope->get('title') }}</span>
                                             </label>
                                             <button type="button" class="btn btn-secondary float-right" data-toggle="collapse" data-target="#{{ $scope->get('key') }}body">?</button>
                                         </div>
@@ -46,6 +46,50 @@
                                     </div>
                                 @endforeach
                             </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="float-right">
+                                        <a href="#" id="all">[Un/Select All]</a>
+                                    </div>
+                                    <strong>Optional Scopes</strong>
+                                </div>
+                                <div class="card-body">
+                                    The scope pairs listed below are optional. With them, additional features/tools of the site will be accessable.
+                                </div>
+                            </div>
+                            <hr />
+                            @foreach ($optional as $scopeGroup)
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong>{{ $scopeGroup->get('info')->get('name') }}</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        {!! $scopeGroup->get('info')->get('description') !!}
+                                    </div>
+                                </div>
+                                <div class="accordian" id="scopeAccordian">
+                                    @foreach ($scopeGroup->get('scopes') as $scope)
+                                        <div class="card">
+                                            <div class="card-header" id="headingOne">
+                                                <label for="{{ $scope->get('key') }}" class="mt-2 mb-0">
+                                                    <input type="checkbox" id="{{ $scope->get('key') }}" name="scopes[{{ $scope->get('key') }}]" class="item"/> <span class="ml-2">{{ $scope->get('title') }}</span>
+                                                </label>
+                                                <button type="button" class="btn btn-secondary float-right" data-toggle="collapse" data-target="#{{ $scope->get('key') }}body">?</button>
+                                            </div>
+
+                                            <div id="{{ $scope->get('key') }}body" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    {{ $scope->get('desc') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <hr />
+                            @endforeach
+
                         </div>
                     </div>
                     <hr />
