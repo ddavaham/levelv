@@ -2,6 +2,7 @@
 
 namespace LevelV\Providers;
 
+use View;
 use Illuminate\Support\{Collection, ServiceProvider};
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        View::composer('*', \LevelV\Composers\ScopeComposer::class);
     }
 
     /**
