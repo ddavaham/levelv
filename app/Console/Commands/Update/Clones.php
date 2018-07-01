@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 use Bus;
 use LevelV\Models\Member;
-use LevelV\Jobs\Member\GetMemberSkillQueue;
+use LevelV\Jobs\Member\GetMemberClones;
 use LevelV\Http\Controllers\DataController;
 
 class Clones extends Command
