@@ -3,7 +3,11 @@
 namespace LevelV\Providers;
 
 use View;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\{Collection, ServiceProvider};
+
+use LevelV\Models\ESI\{Alliance, Character, Corporation, Station, Structure, System};
+use LevelV\Models\SDE\{Constellation, Region};
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,6 +18,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Relation::morphMap([
+            'alliance' => Alliance::class,
+            'character' => Character::class,
+            'constellation' => Constellation::class,
+            'corporation' => Corporation::class,
+            'region' => Region::class,
+            'station' => Station::class,
+            'structure' => Structure::class,
+            'system' => System::class,
+        ]);
+
         View::composer('*', \LevelV\Composers\ScopeComposer::class);
     }
 

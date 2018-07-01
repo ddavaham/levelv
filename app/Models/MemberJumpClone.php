@@ -11,8 +11,18 @@ class MemberJumpClone extends Model
     public $incrementing = false;
     protected static $unguarded = true;
 
+    protected $with = [
+        'location'
+    ];
+
     public function location ()
     {
-        return $this->morphTo('clone_location', 'location_type', 'location_it', 'id');
+        return $this->morphTo('location', 'location_type', 'location_id', 'id');
+    }
+
+    public function getImplantsAttribute($implants)
+    {
+        $implants = collect(json_decode($implants, true));
+        return Type::whereIn('id', $implants->toArray())->with('implantAttributes')->get();
     }
 }
