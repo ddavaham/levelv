@@ -13,7 +13,7 @@
         </div>
         <div class="row">
             <div class="col-lg-3">
-                @include('portal.extra.nav')
+                @include('portal.extra.portal')
             </div>
             <div class="col-lg-9">
                 <h5>
@@ -56,6 +56,13 @@
                 <div class="card mt-3">
                     <div class="card-body p-0">
                         <table class="table table-bordered m-0"?>
+                            <tr>
+                                <td colspan="4">
+                                    <div class="float-right">
+                                        <small>Time displayed is the amount of time from right now to complete the skill. Not the amount of time it will take to train the skill</small>
+                                    </div>
+                                </td>
+                            </tr>
                             @foreach ($member->queue as $skill)
                                 <tr>
                                     <td class="text-white" rowspan="2">
@@ -67,8 +74,8 @@
                                     <td>
                                         {{ $skill->name }} {{ num2rom($skill->pivot->finished_level) }} (Training {{ number_format($skill->pivot->level_end_sp - $skill->pivot->training_start_sp) }} sp) <br /> Training Complete on: <strong>{{ \Carbon\Carbon::parse($skill->pivot->finish_date)->toDayDateTimeString() }}</strong>
                                     </td>
-                                    <td>
-                                        <div class="float-right" data-countdown="{{ $skill->pivot->finish_date }}"></div>
+                                    <td class="align-middle">
+                                        <div class="float-right">{{ age(now(), Carbon::parse($skill->pivot->finish_date)) }}</div>
                                     </td>
                                 </tr>
                                 <tr>

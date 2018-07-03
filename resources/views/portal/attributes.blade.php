@@ -13,7 +13,7 @@
         </div>
         <div class="row">
             <div class="col-lg-3">
-                @include('portal.extra.nav')
+                @include('portal.extra.portal')
             </div>
             <div class="col-lg-9">
                 <div class="row">

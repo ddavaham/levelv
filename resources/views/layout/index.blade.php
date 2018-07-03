@@ -50,8 +50,9 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ml-auto mr-3">
-
-
+                        <li class="nav-item">
+                            <a class="nav-link" id="currentTime" href="#"></a>
+                        </li>
                         @if(Auth::check())
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
@@ -69,7 +70,9 @@
                                 </div>
                             </li>
                         @else
-                            <a href="{{ route('auth.login') }}" class="nav-link">Login</a>
+                            <li class="nav-item">
+                                <a href="{{ route('auth.login') }}" class="nav-link">Login</a>
+                            </li>
                         @endif
                     </ul>
                 </div>
@@ -101,6 +104,14 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha256-5+02zu5UULQkO7w1GIr6vftCgMfFdZcAHeDtFnKZsBs=" crossorigin="anonymous"></script>
+
+        <script>
+            function updateTime() {
+                date = new Date;
+                document.getElementById('currentTime').innerHTML = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            };
+            setInterval(updateTime, 1000);
+        </script>
 
         @yield('js')
 
