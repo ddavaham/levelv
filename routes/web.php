@@ -12,7 +12,11 @@
 */
 
 Route::match(['GET'],'/', 'PublicController@home')->name('home');
-Route::match(['GET'],'/skillplans', 'SkillPlanController@list')->name('skillplans.list');
+
+Route::match(['GET', 'POST'],'/skillplans', 'SkillPlanController@list')->name('skillplans.list');
+Route::match(['GET', 'POST'],'/skillplan/{skillplan}', 'SkillPlanController@view')->name('skillplan.view');
+
+
 Route::match(['GET'],'/fittings', 'FittingController@list')->name('fittings.list');
 // Route::match(['GET'],'/donate', 'PublicController@donate')->name('donate');
 
