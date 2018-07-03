@@ -21,8 +21,9 @@ class PortalController extends Controller
     public function clones(int $member)
     {
         $member = Member::findOrFail($member);
-        $member->clones->dd();
-        return view('portal.attributes')->withMember($member);
+        $member->load('clones');
+        // dd($member->clones->first()->implants);
+        return view('portal.clones')->withMember($member);
     }
 
     public function dashboard ()
@@ -50,7 +51,6 @@ class PortalController extends Controller
         $skillList = $skillList->sortBy('name');
 
         $nextSkillComplete = $member->queue()->orderby('member_skill_queue.queue_position', 'asc')->first();
-
 
         return view('portal.overview', [
             'member' => $member,

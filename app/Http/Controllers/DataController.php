@@ -235,8 +235,10 @@ class DataController extends Controller
         $member->save();
 
         if ($response->get('jump_clones')->isNotEmpty()) {
-            $response->get('jump_clones')->keyBy('jump_clone_id')->each(function ($clone) use ($member, $dispatchedJobs, &$now, &$x) {
-                $member->clones()->updateOrCreate(['clone_id' => $clone->get('jump_clone_id')], [
+            $clones = collect();
+            $response->get('jump_clones')->keyBy('jump_clone_id')->each(function ($clone) use ($member, $clones, $dispatchedJobs, &$now, &$x) {
+                $clones->push([
+                    'clone_id' => $clone->get('jump_clone_id'),
                     'location_id' => $clone->get('location_id'),
                     'location_type' => $clone->get('location_type'),
                     'implants' => $clone->get('implants')->toJson()
@@ -264,7 +266,7 @@ class DataController extends Controller
                         $class = \LevelV\Jobs\ESI\GetStation::class;
                         $shouldDispatch = $this->shouldDispatchJob($class, ['id' => $clone->get('location_id')]);
                         if ($shouldDispatch) {
-                            $job = new $class($member->id, $clone->get('location_id'));
+                            $job = new $class($clone->get('location_id'));
                             $job->delay($now);
                             $this->dispatch($job);
                             $dispatchedJobs = $dispatchedJobs->push($job->getJobStatusId());
@@ -272,6 +274,8 @@ class DataController extends Controller
                     }
                 }
             });
+            $member->clones()->delete();
+            $member->clones()->createMany($clones->toArray());
         }
         $member->jobs()->attach($dispatchedJobs->toArray());
 
@@ -609,7 +613,7 @@ class DataController extends Controller
         foreach ($args as $key=>$value) {
             $check=$check->where('input->'.$key, $value);
         }
-        $check = $check->whereNotIn('status',[JobStatus::STATUS_EXECUTING, JobStatus::STATUS_QUEUED]);
+        $check = $check->whereIn('status',[JobStatus::STATUS_EXECUTING, JobStatus::STATUS_QUEUED]);
         $check = $check->first();
 
         return is_null($check);

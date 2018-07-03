@@ -4,6 +4,8 @@ namespace LevelV\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use LevelV\Models\ESI\Type;
+
 class MemberJumpClone extends Model
 {
     protected $primaryKey = 'id';
