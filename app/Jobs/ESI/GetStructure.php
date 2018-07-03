@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+use LevelV\Models\Member;
 use LevelV\Traits\Trackable;
 use LevelV\Http\Controllers\DataController;
 
