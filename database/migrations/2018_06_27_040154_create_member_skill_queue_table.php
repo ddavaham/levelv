@@ -23,7 +23,6 @@ class CreateMemberSkillQueueTable extends Migration
             $table->unsignedInteger('training_start_sp')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('finish_date')->nullable();
-            $table->timestamps();
 
             $table->primary(['id', 'queue_position']);
 
