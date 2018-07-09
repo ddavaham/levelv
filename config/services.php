@@ -182,7 +182,16 @@ return [
                         1289 => 1287,
                         1290 => 1288
                     ],
-                    'rank' => 275
+                    'rank' => 275,
+                    'primary' => 180,
+                    'secondary' => 181
+                ],
+                'map' => [
+                    164 => "charisma",
+                    165 => "intelligence",
+                    166 => "memory",
+                    167 => "perception",
+                    168 => "willpower"
                 ],
                 'implants' => [
                     'all' => [
