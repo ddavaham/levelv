@@ -22,24 +22,25 @@
                     <div class="list-group">
                         <li class="list-group-item">
                             <div class="float-right">
-                                <span id="countPending">{{ Auth::user()->jobs->whereIn('status', ['queued', 'executing'])->count() }}</span>
+                                <span id="countPending">{{ $jobs->get('pending') }}</span>
                             </div>
                             Pending Jobs
                         </li>
                         <li class="list-group-item">
                             <div class="float-right">
-                                <span id="countFinished">{{ Auth::user()->jobs->whereIn('status', ['finished'])->count() }}</span>
+                                <span id="countFinished">{{ $jobs->get('finished') }}</span>
                             </div>
                             Completed Jobs
                         </li>
                         <li class="list-group-item">
                             <div class="float-right">
-                                <span id="countFailed">{{ Auth::user()->jobs->whereIn('status', ['failed'])->count() }}</span>
+                                <span id="countFailed">{{ $jobs->get('failed') }}</span>
                             </div>
                              Jobs That Failed
                         </li>
-                        <li class="list-group-item text-center">
-                            <em>This module updates every {{ config('services.eve.updateInterval') }} seconds</em>
+                        <li class="list-group-item">
+                            <em>This module updates every {{ config('services.eve.updateInterval') }} seconds</em><br>
+                            <em>This module only reflects the job count of the currently logged in character</em>
                         </li>
                     </div>
                 </div>

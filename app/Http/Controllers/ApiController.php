@@ -13,10 +13,11 @@ class ApiController extends Controller
         if (is_null($member)) {
             return response()->json([], 404);
         }
+        $member->load('alts.jobs');
         $jobsCount = collect([
-            'pending' => $member->jobs()->whereIn('status', ['queued', 'executing'])->count(),
-            'finished' => $member->jobs()->whereIn('status', ['finished'])->count(),
-            'failed' => $member->jobs()->whereIn('status', ['failed'])->count()
+            'pending' => $member->alts->pluck('jobs')->flatten()->whereIn('status', ['queued', 'executing'])->count(),
+            'finished' => $member->alts->pluck('jobs')->flatten()->whereIn('status', ['finished'])->count(),
+            'failed' => $member->alts->pluck('jobs')->flatten()->whereIn('status', ['failed'])->count()
         ])->toArray();
         Log::info('Return Job Status Count for Member '. $id, [$jobsCount]);
         return response()->json($jobsCount, 200);

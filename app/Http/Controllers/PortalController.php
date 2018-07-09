@@ -28,8 +28,15 @@ class PortalController extends Controller
 
     public function dashboard ()
     {
-        Auth::user()->load('jobs');
-        return view('portal.dashboard');
+        Auth::user()->load('alts.jobs');
+        $jobs = collect([
+            'pending' => Auth::user()->alts->pluck('jobs')->flatten()->whereIn('status', ['queued', 'executing'])->count(),
+            'finished' => Auth::user()->alts->pluck('jobs')->flatten()->whereIn('status', ['finished'])->count(),
+            'failed' => Auth::user()->alts->pluck('jobs')->flatten()->whereIn('status', ['failed'])->count()
+        ]);
+        return view('portal.dashboard', [
+            'jobs' => $jobs
+        ]);
     }
 
     public function overview (int $member)
