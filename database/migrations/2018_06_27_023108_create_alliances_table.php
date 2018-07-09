@@ -20,7 +20,7 @@ class CreateAlliancesTable extends Migration
             $table->unsignedBigInteger('creator_id');
             $table->unsignedInteger('creator_corporation_id');
             $table->unsignedInteger('executor_corporation_id');
-            $table->timestamp('date_founded');
+            $table->timestamp('date_founded')->nullable();
             $table->timestamp('cached_until')->nullable();
             $table->timestamps();
 

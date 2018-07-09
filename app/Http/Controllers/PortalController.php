@@ -214,7 +214,7 @@ class PortalController extends Controller
             $member->jobs()->attach($dispatchedJobs->toArray());
             Session::flash('alert', [
                 "header" => "Welcome to " . config('app.name') ." ". Auth::user()->info->name,
-                'message' => "You account has been setup successfully. However, there is a lot of data we need to pull in from the API to properly display your profile to you, so bare with us while we talk with ESI to get that data for you. It shouldn't take long. You can use the Job Status module to the right to check on the status of these jobs. When you have zero (0) pending jobs, it is okay to load up your character, otherwise, one of pages you visit may crash because we don't have all the data yet.",
+                'message' => "You account has been setup successfully. However, there is a lot of data we need to pull in from the API to properly display your profile to you, so bare with us while we talk with ESI to get that data for you. It shouldn't take long. You can use the Job Status module to the left to check on the status of these jobs. When you have zero (0) pending jobs, it is okay to load up your character, otherwise, one of pages you visit may crash because we don't have all the data yet.",
                 'type' => 'success',
                 'close' => 1
             ]);

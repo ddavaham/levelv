@@ -47,13 +47,8 @@
             <div class="col-md-8">
                 <h3 class="text-center">Character List</h3>
                 <hr />
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <div class="float-right">
-                            <a href="{{ route('overview', ['id' => Auth::user()->id]) }}" class="btn btn-primary">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
+                <div class="list-group">
+                    <a href="{{ route('overview', ['id' => Auth::user()->id]) }}" class="list-group-item list-group-item-action">
                         <div class="media mt-0">
                             <img src="{{ config('services.eve.urls.img') }}/Character/{{ Auth::user()->id }}_64.jpg" class="rounded img-fluid mr-3" />
                             <div class="media-body align-center">
@@ -63,11 +58,11 @@
                                 </p>
                             </div>
                         </div>
-                    </li>
-                </ul>
+                    </a>
+                </div>
                 <div class="row">
                     <div class="col-12 mt-3">
-                        <a href="#" class="btn btn-info float-right">Add Character</a>
+                        <a href="{{ route('welcome') }}" class="btn btn-info float-right">Add Character</a>
                     </div>
                 </div>
             </div>
