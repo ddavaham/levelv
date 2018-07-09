@@ -20,6 +20,7 @@ class SettingController extends Controller
     public function token ()
     {
         if (Request::isMethod('delete')) {
+            Auth::user()->alts()->delete();
             Auth::user()->delete();
             Session::flash('alert', [
                 'header' => "Token Deleted Successfully",
