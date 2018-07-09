@@ -7,6 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use LevelV\Models\ESI\{Character, Type};
+use LevelV\Models\Pivot\MemberSkillQueue;
 
 class Member extends Authenticatable
 {
