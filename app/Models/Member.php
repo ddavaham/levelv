@@ -76,6 +76,12 @@ class Member extends Authenticatable
     // ****************************************************************************************************
     // *********************************** Member Data Relationships **************************************
     // ****************************************************************************************************
+
+    public function alts()
+    {
+        return $this->hasMany(Member::class, 'main', 'main');
+    }
+
     public function info()
     {
         return $this->hasOne(Character::class, 'id', 'id');

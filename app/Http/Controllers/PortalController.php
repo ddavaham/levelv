@@ -148,15 +148,15 @@ class PortalController extends Controller
                 return redirect(route('welcome'));
             }
             $getMemberData = $this->dataCont->getMemberData($ssoResponse->get('CharacterID'));
-            if ($ssoResponse->get('CharacterID') != Auth::user()->id) {
-                Session::flash('alert', [
-                    "header" => "Invalid Scope Authorization",
-                    'message' => "The character that you logged in with is different then the character that you just authorized the scopes on. PLease try again and select the correct toon. In this case that is" . Auth::user()->info->name,
-                    'type' => 'danger',
-                    'close' => 1
-                ]);
-                return redirect(route('welcome'));
-            }
+            // if (($ssoResponse->get('CharacterID') != Auth::user()->id)) {
+            //     Session::flash('alert', [
+            //         "header" => "Invalid Scope Authorization",
+            //         'message' => "The character that you logged in with is different then the character that you just authorized the scopes on. PLease try again and select the correct toon. In this case that is" . Auth::user()->info->name,
+            //         'type' => 'danger',
+            //         'close' => 1
+            //     ]);
+            //     return redirect(route('welcome'));
+            // }
             $status = $getMemberData->get('status');
             $payload = $getMemberData->get('payload');
             if (!$status) {
@@ -221,12 +221,14 @@ class PortalController extends Controller
                 $now = $now->addSeconds(1);
             }
             $member->jobs()->attach($dispatchedJobs->toArray());
-            Session::flash('alert', [
-                "header" => "Welcome to " . config('app.name') ." ". Auth::user()->info->name,
-                'message' => "You account has been setup successfully. However, there is a lot of data we need to pull in from the API to properly display your profile to you, so bare with us while we talk with ESI to get that data for you. It shouldn't take long. You can use the Job Status module to the left to check on the status of these jobs. When you have zero (0) pending jobs, it is okay to load up your character, otherwise, one of pages you visit may crash because we don't have all the data yet.",
-                'type' => 'success',
-                'close' => 1
-            ]);
+            if (Auth::user()->id == $payload->get('id')) {
+                Session::flash('alert', [
+                    "header" => "Welcome to " . config('app.name') ." ". Auth::user()->info->name,
+                    'message' => "You account has been setup successfully. However, there is a lot of data we need to pull in from the API to properly display your profile to you, so bare with us while we talk with ESI to get that data for you. It shouldn't take long. You can use the Job Status module to the left to check on the status of these jobs. When you have zero (0) pending jobs, it is okay to load up your character, otherwise, one of pages you visit may crash because we don't have all the data yet.",
+                    'type' => 'success',
+                    'close' => 1
+                ]);
+            }
 
             if (Session::has('to')) {
                 if (starts_with(Session::get('to'), url('/welcome'))) {

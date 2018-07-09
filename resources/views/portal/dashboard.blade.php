@@ -49,17 +49,21 @@
                 <h3 class="text-center">Character List</h3>
                 <hr />
                 <div class="list-group">
-                    <a href="{{ route('overview', ['id' => Auth::user()->id]) }}" class="list-group-item list-group-item-action">
-                        <div class="media mt-0">
-                            <img src="{{ config('services.eve.urls.img') }}/Character/{{ Auth::user()->id }}_64.jpg" class="rounded img-fluid mr-3" />
-                            <div class="media-body align-center">
-                                <h4>{{ Auth::user()->info->name }}</h4>
-                                <p>
-                                    {{ Auth::user()->info->corporation->name }} / @if(!is_null(Auth::user()->info->alliance)) {{ Auth::user()->info->alliance->name }} @endif
-                                </p>
+                    @foreach (Auth::user()->alts as $alt)
+                        <a href="{{ route('overview', ['id' => $alt->id]) }}" class="list-group-item list-group-item-action">
+                            <div class="media mt-0">
+                                <img src="{{ config('services.eve.urls.img') }}/Character/{{ $alt->id }}_64.jpg" class="rounded img-fluid mr-3" />
+                                <div class="media-body align-center">
+                                    <h4>
+                                        {{ $alt->info->name }} @if (Auth::user()->id == $alt->id) {{ "[Main]" }} @else {{ "[Alt]" }} @endif
+                                    </h4>
+                                    <p>
+                                        {{ $alt->info->corporation->name }} / @if(!is_null($alt->info->alliance)) {{ $alt->info->alliance->name }} @endif
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                    @endforeach
                 </div>
                 <div class="row">
                     <div class="col-12 mt-3">
