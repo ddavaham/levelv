@@ -107,7 +107,7 @@ class Member extends Authenticatable
     }
     public function queue()
     {
-        return $this->belongsToMany(Type::class, 'member_skill_queue', 'id', 'skill_id')->withPivot('queue_position', 'finished_level', 'level_start_sp', 'level_end_sp', 'training_start_sp', 'start_date', 'finish_date');
+        return $this->belongsToMany(Type::class, 'member_skill_queue', 'id', 'skill_id')->using(MemberSkillQueue::class)->withPivot('queue_position', 'finished_level', 'level_start_sp', 'level_end_sp', 'training_start_sp', 'start_date', 'finish_date');
     }
 
 }
