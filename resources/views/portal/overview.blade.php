@@ -24,8 +24,8 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Alliance:</strong> {{ $member->info->alliance->name }}</li>
                             @endif
                             <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Next Skill:</strong> {{ $nextSkillComplete->name }}</li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Total SP:</strong> {{ number_format($member->total_sp, 0) }}</li>
                             <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Completed At:</strong> {{ !is_null($nextSkillComplete->pivot->finish_date) ? $nextSkillComplete->pivot->finish_date->toDateTimeString() : "N/A" }}</li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Total SP:</strong> {{ number_format($member->total_sp, 0) }} sp</li>
                         </ul>
                     </div>
                     <div class="col-lg-6">
