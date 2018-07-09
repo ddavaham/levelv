@@ -75,7 +75,7 @@
                                         {{ $skill->name }} {{ num2rom($skill->pivot->finished_level) }} (Training {{ number_format($skill->pivot->level_end_sp - $skill->pivot->training_start_sp) }} sp) <br /> Training Complete on: <strong>{{ \Carbon\Carbon::parse($skill->pivot->finish_date)->toDayDateTimeString() }}</strong>
                                     </td>
                                     <td class="align-middle">
-                                        <div class="float-right">{{ age(now(), Carbon::parse($skill->pivot->finish_date)) }}</div>
+                                        <div class="float-right">{{ age(now(), Carbon::parse($skill->pivot->finish_date), true) }}</div>
                                     </td>
                                 </tr>
                                 <tr>

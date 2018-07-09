@@ -3,7 +3,7 @@
 use \Carbon\Carbon;
 
 if (!function_exists('age')) {
-    function age(Carbon $start, Carbon $end)
+    function age(Carbon $start, Carbon $end, $specific = false)
     {
         $difference = $start->diff($end);
         $results = "";
@@ -29,25 +29,27 @@ if (!function_exists('age')) {
                 $results .= $difference->d."dy ";
             }
         }
-        if ($difference->h != 0) {
-            if ($difference->h > 1) {
-                $results .= $difference->h."hrs ";
-            } else {
-                $results .= $difference->h."hr ";
+        if ($specific) {
+            if ($difference->h != 0) {
+                if ($difference->h > 1) {
+                    $results .= $difference->h."hrs ";
+                } else {
+                    $results .= $difference->h."hr ";
+                }
             }
-        }
-        if ($difference->i != 0) {
-            if ($difference->i > 1) {
-                $results .= $difference->i."mins ";
-            } else {
-                $results .= $difference->i."min ";
+            if ($difference->i != 0) {
+                if ($difference->i > 1) {
+                    $results .= $difference->i."mins ";
+                } else {
+                    $results .= $difference->i."min ";
+                }
             }
-        }
-        if ($difference->s != 0) {
-            if ($difference->s > 1) {
-                $results .= $difference->s."secs ";
-            } else {
-                $results .= $difference->s."sec ";
+            if ($difference->s != 0) {
+                if ($difference->s > 1) {
+                    $results .= $difference->s."secs ";
+                } else {
+                    $results .= $difference->s."sec ";
+                }
             }
         }
         return trim($results);
