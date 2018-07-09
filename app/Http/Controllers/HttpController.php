@@ -212,7 +212,7 @@ class HttpController extends Controller
             "Authorization" => "Bearer ". $token,
             "Content-Type" => "application/json",
             "User-Agent" => config("services.eve.userAgent")
-        ], 'get', config('services.eve.urls.esi'),"/v1/universe/structures/{$id}/", []);
+        ], 'get', config('services.eve.urls.esi'),"/v2/universe/structures/{$id}/", []);
     }
 
     public function getUniverseSystemsSystemId ($id)
@@ -220,7 +220,7 @@ class HttpController extends Controller
         return $this->request([
             "Content-Type" => "application/json",
             "User-Agent" => config("services.eve.userAgent")
-        ], 'get', config('services.eve.urls.esi'),"/v2/universe/systems/{$id}/", []);
+        ], 'get', config('services.eve.urls.esi'),"/v4/universe/systems/{$id}/", []);
     }
 
     public function getUniverseGroupsGroupId ($id)
