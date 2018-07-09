@@ -171,15 +171,17 @@ class PortalController extends Controller
 
             $member = Member::firstOrNew(['id' => $payload->get('id')]);
             $member->fill([
+                'main' => Auth::check() ? Auth::user()->id : $payload->get('id'),
                 'scopes' => json_encode(explode(' ', $ssoResponse->get('Scopes'))),
                 'access_token' => $ssoResponse->get('access_token'),
                 'refresh_token' => $ssoResponse->get('refresh_token'),
+                'raw_hash' => $ssoResponse->get('CharacterOwnerHash'),
+                'hash' => hash('sha1', $ssoResponse->get('CharacterOwnerHash')),
                 'disabled' => 0,
                 'disabled_reason' => null,
                 'disabled_timestamp' => null,
                 'expires' => Carbon::now()->addSeconds($ssoResponse->get('expires_in'))->toDateTimeString()
             ]);
-
             $member->save();
             $dispatchedJobs = collect(); $now = now();
             if ($member->scopes->contains("esi-clones.read_clones.v1")) {
