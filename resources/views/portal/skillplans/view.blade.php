@@ -325,7 +325,6 @@
         </div>
     </div>
     @foreach ($plan->remaps as $key => $value)
-        makePlanPrivate
         <div class="modal fade" id="remap_{{ $key }}" tabindex="-1" role="dialog" aria-labelledby="deletePlanLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
