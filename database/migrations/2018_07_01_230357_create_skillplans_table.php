@@ -17,10 +17,12 @@ class CreateSkillplansTable extends Migration
             $table->string('id', 32);
             $table->string('name');
             $table->text('description')->nullable();
+            $table->json('attributes')->nullable();
+            $table->unsignedInteger('training_time')->default(0);
+            $table->unsignedInteger('total_sp')->default(0);
             $table->unsignedBigInteger('author_id')->nullable();
             $table->boolean('author_anon')->default(0);
             $table->boolean('is_public')->default(0);
-            $table->boolean('enforce_prereq')->default(1);
             $table->timestamps();
 
             $table->primary('id');

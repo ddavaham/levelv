@@ -19,7 +19,7 @@
                 <h3 class="text-center">Skillplan List</h3>
                 <hr />
                 <div class="list-group">
-                    @forelse ($skillplans as $plan)
+                    @forelse ($skillPlans as $plan)
                         <a href="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">
                             <div class="media mt-0">
                                 {{-- <img src="{{ config('services.eve.urls.img') }}/Type/{{ Auth::user()->id }}_64.jpg" class="rounded img-fluid mr-3" /> --}}

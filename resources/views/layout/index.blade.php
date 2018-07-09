@@ -108,7 +108,7 @@
         <script>
             function updateTime() {
                 date = new Date;
-                document.getElementById('currentTime').innerHTML = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+                document.getElementById('currentTime').innerHTML = date.getHours() + ":" + ((date.getMinutes() < 10) ? "0" + date.getMinutes() : date.getMinutes()) + ":" + ((date.getSeconds() < 10) ? "0" + date.getSeconds() : date.getSeconds());
             };
             setInterval(updateTime, 1000);
         </script>

@@ -52,6 +52,12 @@ class AppServiceProvider extends ServiceProvider
             });
         });
 
+        Collection::macro('arsort', function () {
+            $arr = $this->toArray();
+            arsort($arr);
+            return collect($arr);
+        });
+
         Collection::macro('paginate', function( $perPage, $total = null, $page = null, $pageName = 'page' ) {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage( $pageName );
 

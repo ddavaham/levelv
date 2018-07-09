@@ -15,11 +15,17 @@ class CreateSkillplanSkillzTable extends Migration
     {
         Schema::create('skillplan_skillz', function (Blueprint $table) {
             $table->string('plan_id', 32);
+            $table->unsignedTinyInteger('position');
             $table->unsignedInteger('type_id');
             $table->unsignedTinyInteger('level');
-            $table->unsignedInteger('position');
+            $table->unsignedTinyInteger('rank');
+            $table->string('primaryAttribute');
+            $table->string('secondaryAttribute');
+            $table->timestamps();
 
-            $table->primary(['plan_id', 'type_id', 'level']);
+            $table->primary(['plan_id','position']);
+
+            $table->index('type_id');
 
             $table->foreign('plan_id')->references('id')->on('skillplans')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('type_id')->references('id')->on('types')->onDelete('cascade')->onUpdate('cascade');
