@@ -78,28 +78,26 @@
 
 @section('js')
     <script>
-        @if (Auth::user()->jobs->where('status', 'queued')->count() > 0)
-            interval = {{ config('services.eve.updateInterval') * 1000 }};
-            function updateJobs() {
-                $.ajax({
-                    url: "{{ route('api.jobs.status', ['id' => Auth::user()->id]) }}",
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data, textStatus, request) {
-                        console.log(data)
-                        document.getElementById('countPending').innerHTML = data.pending;
-                        document.getElementById('countFinished').innerHTML = data.finished;
-                        document.getElementById('countFailed').innerHTML = data.failed;
-                        if (data.pending == 0) {
-                            clearInterval(update);
-                        }
+        interval = {{ config('services.eve.updateInterval') * 1000 }};
+        function updateJobs() {
+            $.ajax({
+                url: "{{ route('api.jobs.status', ['id' => Auth::user()->id]) }}",
+                type: 'GET',
+                dataType: 'json',
+                success: function (data, textStatus, request) {
+                    console.log(data)
+                    document.getElementById('countPending').innerHTML = data.pending;
+                    document.getElementById('countFinished').innerHTML = data.finished;
+                    document.getElementById('countFailed').innerHTML = data.failed;
+                    if (data.pending == 0) {
+                        clearInterval(update);
                     }
-                });
-            };
-
-            $(document).ready(function ()  {
-                update = setInterval(updateJobs, interval);
+                }
             });
-        @endif
+        };
+
+        $(document).ready(function ()  {
+            update = setInterval(updateJobs, interval);
+        });
     </script>
 @endsection
