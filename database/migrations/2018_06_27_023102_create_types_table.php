@@ -19,6 +19,7 @@ class CreateTypesTable extends Migration
             $table->text('description')->nullable();
             $table->boolean('published')->default(0);
             $table->unsignedInteger('group_id')->default(0);
+            $table->unsignedInteger('category_id')->default(0);
             $table->float('volume', 12, 2)->default(0);
             $table->boolean('has_skill_dogma')->default(0);
             $table->timestamps();

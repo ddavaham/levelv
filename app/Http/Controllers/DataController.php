@@ -510,6 +510,7 @@ class DataController extends Controller
                 return $request;
             }
             $response = collect($request->get('payload')->get('response'))->recursive();
+
             $type->fill([
                 'name' => $response->get('name'),
                 'description' => $response->get('description'),
@@ -517,6 +518,8 @@ class DataController extends Controller
                 'group_id' => $response->get('group_id'),
                 'volume' => $response->get('volume')
             ]);
+            $type->load('group');
+            $type->fill(['category_id' => $type->group->category_id]);
             $type->save();
 
             if ($response->has('dogma_attributes')) {
@@ -533,27 +536,6 @@ class DataController extends Controller
                     }
                 });
                 $type->attributes()->createMany($missingAttributes->toArray());
-                $typeDogma = $attributes->whereIn('attribute_id', config('services.eve.attributes.skillz.all'))->keyBy('attribute_id');
-                $typeSkillz = collect();
-                collect(config('services.eve.attributes.skillz.mapping'))->each(function ($level, $skill) use ($typeDogma, $typeSkillz) {
-                    if ($typeDogma->has($skill) && $typeDogma->has($level)) {
-                        $skillId = (int)$typeDogma->get($skill)->get('value');
-                        $skillLvl = (int)$typeDogma->get($level)->get('value');
-                        $dogmaSkill = Type::firstOrNew(['id' => $skillId]);
-                        if (!$dogmaSkill->exists) {
-                            $job = new \LevelV\Jobs\ESI\GetType($skillId);
-                            $this->dispatch($job);
-                        }
-                        $typeSkillz->push(collect([
-                            'id' => $skillId,
-                            'value' => $skillLvl
-                        ]));
-                    }
-                });
-                if ($typeSkillz->isNotEmpty()) {
-                    $type->skillz()->detach();
-                    $type->skillz()->attach($typeSkillz->pluck('id')->toArray());
-                }
             }
         }
         return collect([
