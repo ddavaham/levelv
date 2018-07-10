@@ -3,7 +3,7 @@
 namespace LevelV\Http\Controllers;
 
 use Auth, Cache, Carbon, DB, Request, Session, Validator;
-use LevelV\Models\{Member, Skillplan};
+use LevelV\Models\{Member, SkillPlan};
 use LevelV\Models\ESI\Type;
 
 use Illuminate\Support\Collection;
@@ -29,7 +29,7 @@ class SkillPlanController extends Controller
             $id = hash('md5', str_slug($name, '-').str_random(16));
 
             while(true){
-                $plan = Skillplan::find($id);
+                $plan = SkillPlan::find($id);
                 if (!is_null($plan)) {
                     $id = hash('md5', str_slug($name, '-').str_random(16));
                 } else {
@@ -37,7 +37,7 @@ class SkillPlanController extends Controller
                 }
             }
             $attributes = collect(config('services.eve.dogma.attributes.map'));
-            $create = Skillplan::create([
+            $create = SkillPlan::create([
                 'id' => $id,
                 'name' => $name,
                 'author_id' => Auth::user()->main,
