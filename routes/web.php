@@ -32,6 +32,7 @@ Route::match(['GET'],'/sso/refresh', 'SSOController@refresh')->name('sso.refresh
 Route::group(['middleware' => ['auth']], function () {
 
     Route::match(['GET'], '/dashboard', 'PortalController@dashboard')->name('dashboard');
+    Route::match(['GET'], '/dashboard/switch', 'PortalController@switch')->name('dashboard.switch');
     Route::match(['GET', 'POST'], '/welcome', 'PortalController@welcome')->name('welcome');
     Route::match(['GET'], '/view/{member}', 'PortalController@overview')->name('overview');
     Route::match(['GET'], '/view/{member}/clones', 'PortalController@clones')->name('clones');

@@ -97,6 +97,38 @@ class PortalController extends Controller
         ])->withMember($member);
     }
 
+    public function switch ()
+    {
+        if (!Request::has('to') || !Request::get('return')) {
+            Session::flash('alert', [
+               "header" => "Unable to Swap to Character",
+               'message' => "That character has not registered for this application. Please register that character with this application before attempting to swap to the character",
+               'type' => 'danger',
+               'close' => 1
+            ]);
+            return redirect(route('dashboard'));
+        }
+        $member = Auth::user()->alts->keyBy('id')->get(Request::get('to'));
+        if (is_null($member)) {
+            Session::flash('alert', [
+               "header" => "Unknown Alt",
+               'message' => "Alt with ID ". Request::get('to') . " is not known to this system. please try again",
+               'type' => 'danger',
+               'close' => 1
+            ]);
+            return redirect(Request::get('return'));
+        }
+        Auth::logout();
+        Auth::login($member);
+        Session::flash('alert', [
+           "header" => "Switch Successful",
+           'message' => "You are now logged in as ". Auth::user()->info->name,
+           'type' => 'info',
+           'close' => 1
+        ]);
+        return redirect(Request::get('return'));
+    }
+
     public function welcome()
     {
         if (Request::isMethod('post')) {

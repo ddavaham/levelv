@@ -62,9 +62,9 @@
                                     Hello {{ collect(explode(' ', Auth::user()->info->name))->first() }} <b class="caret"></b>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                  <a class="dropdown-item" href="{{ route('dashboard') }}"> My Dashboard</a>
+                                  <a class="dropdown-item" href="{{ route('overview', ['member' => Auth::user()->id]) }}"> My Overview</a>
+                                  <a class="dropdown-item" href="#" data-toggle='modal' data-target="#characterSwap"> Alt Hotswap</a>
                                   <a class="dropdown-item" href="{{ route('settings.index') }}"> My Settings</a>
-                                  {{-- <a class="dropdown-item" href="#"> Alt Hotswap</a> --}}
                                   <div class="dropdown-divider"></div>
                                   <a class="dropdown-item" href="{{ route('auth.logout') }}"> Logout</a>
                                 </div>
@@ -96,6 +96,47 @@
                 </div>
             </footer>
         </div>
+
+        @if (Auth::user()->alts->isNotEmpty())
+            <div class="modal fade" id="characterSwap" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title text-center">Character Hotswap</h4>
+                        </div>
+                        <table class="table modal-body">
+                            @foreach (Auth::user()->alts as $alt)
+                                <tr>
+                                    <td width=15%>
+                                        <img src="{{ config('services.eve.urls.img') }}/Character/{{ $alt->id }}_64.jpg" class="round img-fluid" />
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        {{ $alt->id }}
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        {{ $alt->info->name }}
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        <strong>{{ $alt->id == $alt->main ? "Main" : "Alt" }}</strong>
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        @if ($alt->id != Auth::user()->id)
+                                            <a href="{{ route('dashboard.switch', ['to' => $alt->id, 'return' => url()->current()]) }}" class="btn btn-primary">Swap to This Toon</a>
+                                        @else
+                                            <strong>Currently Logged In Character</strong>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </table>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Nevermind</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+        @endif
 
 
         <!-- Bootstrap core JavaScript
