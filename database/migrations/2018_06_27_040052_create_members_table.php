@@ -21,8 +21,8 @@ class CreateMembersTable extends Migration
             $table->json('implants')->nullable();
             $table->unsignedBigInteger('clone_location_id')->nullable();
             $table->enum('clone_location_type', ['station', 'structure'])->nullable();
-            $table->string('raw_hash');
-            $table->string('hash', 64);
+            $table->string('raw_hash')->nullable();
+            $table->string('hash', 64)->nullable();
             $table->string('access_token')->nullable();
             $table->string('refresh_token', 512)->nullable();
             $table->json('scopes')->nullable();
