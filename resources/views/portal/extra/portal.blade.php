@@ -7,4 +7,6 @@
     @if($scopes->containsStrict("esi-clones.read_clones.v1"))
         <a href="{{ route('clones', ['member' => $member]) }}" class="list-group-item list-group-item-action">My Jump Clones</a>
     @endif
+    <a href="{{ route('skillplans.list', ['member' => $member]) }}" class="list-group-item list-group-item-action">Skill Plan Manager</a>
+    {{-- <a href="{{ route('fittings.list') }}" class="list-group-item list-group-item-action" target="_blank">Fitting Manager</a> --}}
 </div>

@@ -40,6 +40,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::match(['GET'], '/view/{member}/queue', 'PortalController@queue')->name('queue');
     Route::match(['GET'], '/view/{member}/attributes', 'PortalController@attributes')->name('attributes');
 
+    Route::match(['GET', 'POST'],'/view/{member}/skillplans', 'SkillPlanController@list')->name('skillplans.list');
+    Route::match(['GET', 'POST'],'/view/{member}/skillplan/{skillplan}', 'SkillPlanController@view')->name('skillplan.view');
+
     Route::match(['GET'], '/settings', 'SettingController@index')->name('settings.index');
     Route::match(['GET', 'DELETE'], '/settings/token', 'SettingController@token')->name('settings.token');
 });

@@ -3,7 +3,7 @@
 namespace LevelV\Http\Controllers;
 
 use Auth, Cache, Carbon, DB, Request, Session, Validator;
-use LevelV\Models\Skillplan;
+use LevelV\Models\{Member, Skillplan};
 use LevelV\Models\ESI\Type;
 
 use Illuminate\Support\Collection;
@@ -15,8 +15,9 @@ class SkillPlanController extends Controller
         $this->dataCont = new DataController;
     }
 
-    public function list()
+    public function list(int $member)
     {
+        $member = Member::findOrFail($member);
         if (Request::isMethod('post')) {
             $validator = Validator::make(Request::all(), [
                 'name' => "required|min:5|max:50"
@@ -39,7 +40,7 @@ class SkillPlanController extends Controller
             $create = Skillplan::create([
                 'id' => $id,
                 'name' => $name,
-                'author_id' => Auth::user()->id,
+                'author_id' => Auth::user()->main,
                 'attributes' => $attributes->each(function ($attribute, $key) use ($attributes) {$attributes->put($attribute, 17);$attributes->forget($key);})->toJson()
             ]);
             Session::flash('alert', [
@@ -50,15 +51,25 @@ class SkillPlanController extends Controller
             ]);
             return redirect(route('skillplan.view', ['skillplan' => $create->id]));
         }
-        $skillPlans = SkillPlan::with('skillz')->get();
+        $skillPlans = SkillPlan::where('author_id', Auth::user()->main)->with('skillz')->get();
         return view('portal.skillplans.list', [
             'skillPlans' => $skillPlans
-        ]);
+        ])->withMember($member);
     }
 
-    public function view($skillPlan)
+    public function view(int $member, string $skillPlan)
     {
-        $skillPlan = SkillPlan::findOrFail($skillPlan);
+        $member = Member::findOrFail($member);
+        $skillPlan = SkillPlan::where(['author_id' => $member->main, 'id' => $skillPlan])->first();
+        if (!$skillPlan->is_public && Auth::user()->main != $member->main) {
+            Session::flash('alert', [
+                'header' => "Public Access not Enabled",
+                'message' => "That skill plan is not available to the public right now. Only registered alts of the Auther my view that skillplan",
+                'type' => 'info',
+                'close' => 1
+            ]);
+            return redirect(route('skillplan.view', ['skillplan' => $create->id]));
+        }
         if (Request::isMethod('delete')) {
             if (Request::has('target')) {
                 $target = Request::get('target');
@@ -69,7 +80,7 @@ class SkillPlanController extends Controller
                     ]);
                     $skillPlan->skillz()->delete();
                     Cache::forget($skillPlan->id);
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($target === "plan") {
                     $skillPlan->delete();
@@ -113,7 +124,7 @@ class SkillPlanController extends Controller
             ]);
             $validator->setAttributeNames($niceNames);
             if ($validator->fails()) {
-                return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]))->withErrors($validator)->withInput();
+                return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]))->withErrors($validator)->withInput();
             }
             if (Request::has('action')) {
                 $action = Request::get('action');
@@ -131,7 +142,7 @@ class SkillPlanController extends Controller
                             'type' => 'info',
                             'close' => 1
                         ]);
-                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]))->withInput();
+                        return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]))->withInput();
                     }
                     $skillAttributes = $skillType->skillAttributes->keyBy('attribute_id');
                     $skillRank = (int)$skillAttributes->get($attributeRank)->value;
@@ -150,7 +161,7 @@ class SkillPlanController extends Controller
                                 'type' => 'info',
                                 'close' => 1
                             ]);
-                            return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]))->withInput();
+                            return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]))->withInput();
                         }
                         $skillsToAttach->push(collect([
                             'type_id' => $skillType->id,
@@ -210,14 +221,14 @@ class SkillPlanController extends Controller
                     $skillTree = $this->generateSkillTree($skillPlan);
                     Cache::put($skillPlan->id, $skillTree->toJson());
 
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "updateAttributes" && Request::has('attributes')) {
                     $skillPlan->update([
                         'attributes' => collect(Request::get('attributes'))->toJson()
                     ]);
                     $this->calculateTrainingTimeAndSP($skillPlan);
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "save" && !is_null(Request::get('submittedList'))) {
                     $newSkillz = collect();
@@ -258,11 +269,11 @@ class SkillPlanController extends Controller
                             'type' => 'info',
                             'close' => 1
                         ]);
-                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                        return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                     }
                     $skillPlan->skillz()->delete();
                     $skillPlan->skillz()->createMany($newSkillz->toArray());
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "delete") {
                     $delete = Request::get('delete');
@@ -277,7 +288,7 @@ class SkillPlanController extends Controller
                                 'type' => 'warning',
                                 'close' => 1
                             ]);
-                            return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                            return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                         }
                         foreach ($skillTree as $parentSkillId => $skillRequirements) {
                             if ($skillRequirements->has($skillAtPosition->type_id) && $skillRequirements->get($skillAtPosition->type_id) >= $skillAtPosition->level) {
@@ -288,7 +299,7 @@ class SkillPlanController extends Controller
                                     'type' => 'info',
                                     'close' => 1
                                 ]);
-                                return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                                return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                             }
                         }
                     }
@@ -311,19 +322,19 @@ class SkillPlanController extends Controller
                         'training_time' => $trnTime,
                         'total_sp' => $totalSP,
                     ]);
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "makePublic") {
                     $skillPlan->update([
                         'is_public' => 1
                     ]);
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "makePrivate") {
                     $skillPlan->update([
                         'is_public' => 0
                     ]);
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "addRemap") {
                     $currentRemaps = $skillPlan->remaps;
@@ -335,14 +346,14 @@ class SkillPlanController extends Controller
                             'type' => 'warning',
                             'close' => 1
                         ]);
-                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                        return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                     }
                     $currentRemaps = $currentRemaps->put($afterPosition, collect(Request::get('remappedAttr')));
                     $skillPlan->update([
                         'remaps' => $currentRemaps->toJson()
                     ]);
                     $this->calculateTrainingTimeAndSP($skillPlan);
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "deleteRemap") {
                     $currentRemaps = $skillPlan->remaps;
@@ -354,14 +365,14 @@ class SkillPlanController extends Controller
                             'type' => 'warning',
                             'close' => 1
                         ]);
-                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                        return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                     }
                     $currentRemaps->forget($deletePosition);
                     $skillPlan->update([
                         'remaps' => $currentRemaps->toJson()
                     ]);
                     $this->calculateTrainingTimeAndSP($skillPlan);
-                    return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
                 }
             }
 
@@ -378,7 +389,7 @@ class SkillPlanController extends Controller
             'plan' => $skillPlan,
             'tree' => $skillTree,
             'attributeComp' => $attributeComp
-        ]);
+        ])->withMember($member);
     }
 
     public function calculateTrainingTimeAndSP(SkillPlan $skillPlan)
@@ -386,11 +397,10 @@ class SkillPlanController extends Controller
         $totalSP = 0;
         $trnTime = 0; // in Minutes
         $planAttributes = $skillPlan->attributes->recursive();
-        // $skillPlan->remaps->dd();
         foreach($skillPlan->skillz as $skill) {
             if ($skillPlan->remaps->has($skill->position - 1)) {
                 $planAttributes = collect($skillPlan->remaps->get($skill->position - 1));
-                
+
             }
             $spInLevel = pow(2, 2.5 * ($skill->level - 1)) * 250 * $skill->rank;
             $spPerMinute = $planAttributes->get($skill->primaryAttribute) + ($planAttributes->get($skill->secondaryAttribute)/2);

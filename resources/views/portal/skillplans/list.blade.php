@@ -13,16 +13,15 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-                @include('portal.extra.dashboard')
+                @include('portal.extra.portal')
             </div>
             <div class="col-md-8">
                 <h3 class="text-center">Skillplan List</h3>
                 <hr />
                 <div class="list-group">
                     @forelse ($skillPlans as $plan)
-                        <a href="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">
+                        <a href="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">
                             <div class="media mt-0">
-                                {{-- <img src="{{ config('services.eve.urls.img') }}/Type/{{ Auth::user()->id }}_64.jpg" class="rounded img-fluid mr-3" /> --}}
                                 <div class="media-body align-center">
                                     <h4>{{ $plan->name }}</h4>
                                     <p>

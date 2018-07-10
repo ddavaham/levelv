@@ -13,8 +13,6 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-                @include('portal.extra.dashboard')
-                <hr />
                 <div class="card">
                     <div class="card-header">
                         Job Status
@@ -55,7 +53,7 @@
                                 <img src="{{ config('services.eve.urls.img') }}/Character/{{ $alt->id }}_64.jpg" class="rounded img-fluid mr-3" />
                                 <div class="media-body align-center">
                                     <h4>
-                                        {{ $alt->info->name }} @if (Auth::user()->id == $alt->id) {{ "[Main]" }} @else {{ "[Alt]" }} @endif
+                                        {{ $alt->info->name }} @if (Auth::user()->main == $alt->id) {{ "[Main]" }} @else {{ "[Alt]" }} @endif
                                     </h4>
                                     <p>
                                         {{ $alt->info->corporation->name }} / @if(!is_null($alt->info->alliance)) {{ $alt->info->alliance->name }} @endif
