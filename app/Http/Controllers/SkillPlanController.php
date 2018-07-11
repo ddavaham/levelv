@@ -120,7 +120,7 @@ class SkillPlanController extends Controller
                 'deletePosition' => "required_if:action,deleteRemap|numeric|min:0|max:".$skillPlan->skillz->count()
             ], [
                 'action.required' => "An action is required to process this request",
-                'action.in' => "An invalid action has been submitted. Please us a valid action",
+                'action.in' => "An invalid action has been submitted. Please use a valid action",
                 'attributes.array' => "The Attributes are not formatted correctly. Please try again",
                 'remappedAttr.*.max' => ":attribute must be less than :max. Please try again.",
                 'attributes.*.min' => ":attribute must be greater than :min. Please try again."
