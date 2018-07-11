@@ -49,7 +49,7 @@ class SkillPlanController extends Controller
                 'type' => 'info',
                 'close' => 1
             ]);
-            return redirect(route('skillplan.view', ['skillplan' => $create->id]));
+            return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $create->id]));
         }
         $skillPlans = SkillPlan::where('author_id', Auth::user()->main)->with('skillz')->get();
         return view('portal.skillplans.list', [
