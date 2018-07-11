@@ -1,6 +1,6 @@
 @extends('layout.index')
 
-@section('title', Auth::user()->info->name . " Clones")
+@section('title', $member->info->name . " Clones")
 
 @section('content')
     <div class="container">

@@ -21,16 +21,40 @@
                 </h3>
 
                 <hr />
-                <div class="collapse" id="addSkillCollapse">
+                <div class="collapse {{ $plan->skillz->count() == 0 ? "show" : "" }}" id="addSkillCollapse">
                     <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
-                        <div class="form-group">
-                            <label for="addSkill">Start Typing Skill to Add:</label>
-                            <input type="text" name="skillToAdd" id="skillToAdd" class="form-control" value="{{ old('addSkill') }}" placeholder="Skill Name" />
+                        <div class="row">
+                            <div class="form-group col-md-9">
+                                <label for="addSkill">Start Typing Skill to Add:</label>
+                                <input type="text" name="skillToAdd" id="skillToAdd" class="form-control" value="{{ old('addSkill') }}" placeholder="Skill Name" />
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="skillToAddLevel">Skill Level:</label>
+                                <select name="skillToAddLevel" id="skillToAddLevel" class="form-control ml-0">
+                                    @for($x=1;$x<=5;$x++)
+                                        <option value="{{ $x }}">Level {{ num2rom($x) }}</option>
+                                    @endfor
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            {{ csrf_field() }}
-                            <button type="submit" name="action" value="addSkill" class="btn btn-sm btn-primary">Submit Skill</button>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-0 mt-0">
+                                    <label for="allSkillzV">
+                                        <input type="checkbox" name="allSkillzV" id="allSkillzV" /> All Prereqs to Level V
+                                    </label>
+                                </div>
+                            </div>
                         </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    {{ csrf_field() }}
+                                    <button type="submit" name="action" value="addSkill" class="btn btn-sm btn-primary">Submit Skill</button>
+                                </div>
+                            </div>
+                        </div>
+
                         <hr />
                     </form>
                 </div>
@@ -38,10 +62,24 @@
                 <ul class="list-group sortable" id="skillList">
                     @foreach ($plan->skillz as $key=>$skill)
                         <li class="list-group-item" id="{{ $key }}">
-                            <div class="float-right">
+                            <div class="float-right mt-2">
                                 <form action="{{ route('skillplan.view', ['member' => $member->main,'skillplan' => $plan->id, 'delete' => $key]) }}" method="post">
                                     {{ csrf_field() }}
-                                    <button type="submit" name="action" value="delete" class="btn btn-sm btn-danger">
+                                    @if ($skill->trained == 2)
+                                        <button type="button" class="btn btn-sm btn-success disabled" title="Skill Meets Skillplan Requirements">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    @elseif ($skill->trained == 1)
+                                        <button type="button" class="btn btn-sm btn-warning disabled" title="Skill Is Injected, But does not meet this level">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </button>
+                                    @elseif ($skill->trained == 0)
+                                        <button type="button" class="btn btn-sm btn-danger disabled" title="Skill Is Not Injected.">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    @endif
+
+                                    <button type="submit" name="action" value="delete" class="btn btn-sm btn-secondary">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </form>
@@ -189,6 +227,40 @@
                             </form>
                         </div>
 
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" data-toggle="collapse" data-target="#planExport">
+                        Export {{ $plan->name }} <small>Click to Collapse</small>
+                    </div>
+                    <div class="collapse" id="planExport">
+                        <div class="list-group">
+                            <div class="list-group-item" data-toggle="collapse" data-target="#missingSkillz">
+                                Missing Skillz List <small>[Click to Expand]</small>
+                            </div>
+                            <div class="collapse" id="missingSkillz">
+                                <div class="list-group-item">
+                                    @foreach ($missingSkillz as $missingSkill)
+                                        {{ $missingSkill->name }} {!! "<br />" !!}
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group">
+                            <div class="list-group-item" data-toggle="collapse" data-target="#skillPlanSkilz">
+                                Skill Plan Skillz <small>[Click to Expand]</small>
+                            </div>
+                            <div class="collapse" id="skillPlanSkilz">
+                                <div class="list-group-item">
+                                    @foreach ($plan->skillz as $skill)
+                                        {{ $skill->info->name }} {{ num2rom($skill->level) }} {!! "<br />" !!}
+                                    @endforeach
+                                </div>
+                                <div class="list-group-item">
+                                    <em>Highlight the list above and paste into queue</em>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -418,6 +490,7 @@
 
 
         $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip()
             $('.sortable').sortable({
                 stop: function( event, ui ) {
                     if (!validate()) {

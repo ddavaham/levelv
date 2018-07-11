@@ -1,6 +1,6 @@
 @extends('layout.index')
 
-@section('title', Auth::user()->info->name . " Dashboard")
+@section('title', $member->info->name . " Attributes & Implants")
 
 @section('content')
     <div class="container">
