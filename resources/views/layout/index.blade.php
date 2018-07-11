@@ -46,7 +46,7 @@
                             <a href="{{ route('donate') }}" class="nav-link">Donate</a>
                         </li> --}}
                         <li class="nav-item">
-                            <a href="{{ config('services.bitbucket.urls.issues') }}" class="nav-link" target="_blank">Report An Issue</a>
+                            <a href="{{ config('services.github.urls.issues') }}" class="nav-link" target="_blank">Report An Issue</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ml-auto mr-3">
@@ -87,7 +87,7 @@
                         <!-- Footer -->
                         <p>
                             Brought to you by <a href="https://evewho.com/pilot/David+Davaham">David Davaham</a><br />
-                            <a href="{{ config('services.bitbucket.urls.overview') }}" target="_blank">Bitbucket</a>
+                            <a href="{{ config('services.github.urls.overview') }}" target="_blank">Github</a>
                         </p>
                     </div>
                 </div>
