@@ -305,18 +305,39 @@ class SkillPlanController extends Controller
             }
 
         }
-        // Check for Cached Skilltree
+        // Generate a SkillTree for the Javascript to use to validate positions on the plan
         $skillTree = $this->generateSkillTree($skillPlan);
+        // Generate the how many skillz of each attribute on are on the skillplan
         $attributeComp = collect(config('services.eve.dogma.attributes.map'));
         $attributeComp->each(function ($attribute, $key) use ($attributeComp) {$attributeComp->put($attribute, 0);$attributeComp->forget($key);});
         $this->buildAttributeComp($skillPlan->skillz)->each(function ($value, $key) use ($attributeComp) {
             $attributeComp->put($key, $value);
         });
         $attributeComp = $attributeComp->arsort();
+
+        // loop through each skill on the plan and set a flag to determine if the skill is injected, trained, injected but not trained, or needs to be purchased.
+        // 0 = Skill Not Injected, 1 = Skill Inject, Not Trained, 2 = Skill At or Above Level
+        $charSkillz = Auth::user()->skillz->keyBy('id');
+        $missingSkillz = collect();
+        foreach ($skillPlan->skillz as $skill) {
+            if ($charSkillz->has($skill->type_id)) {
+                if ($charSkillz->get($skill->type_id)->pivot->trained_skill_level < $skill->level) {
+                    $skill->trained = 1;
+                } else {
+                    $skill->trained = 2;
+                }
+            } else {
+                $skill->trained = 0;
+                if (!$missingSkillz->has($skill->type_id)) {
+                    $missingSkillz->put($skill->type_id, $skill->info);
+                }
+            }
+        }
         return view('portal.skillplans.view', [
             'plan' => $skillPlan,
             'tree' => $skillTree,
-            'attributeComp' => $attributeComp
+            'attributeComp' => $attributeComp,
+            'missingSkillz' => $missingSkillz
         ])->withMember($member);
     }
 
