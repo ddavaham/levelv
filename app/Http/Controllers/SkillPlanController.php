@@ -222,6 +222,7 @@ class SkillPlanController extends Controller
                     Cache::put($skillPlan->id, $skillTree->toJson());
 
                     return redirect(route('skillplan.view', ['member' => $member->main, 'skillplan' => $skillPlan->id]));
+                    return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $skillPlan->id]));
                 }
                 if ($action === "updateAttributes" && Request::has('attributes')) {
                     $skillPlan->update([
@@ -391,6 +392,99 @@ class SkillPlanController extends Controller
             'attributeComp' => $attributeComp
         ])->withMember($member);
     }
+
+    public function addSkillToPlan(SkillPlan $skillPlan, Type $skillType, int $level=null, bool $allSkillzV=null)
+    {
+        $attributeRank = config('services.eve.dogma.attributes.skillz.rank');
+        $priAttrKey = config('services.eve.dogma.attributes.skillz.primary');
+        $secAttrKey = config('services.eve.dogma.attributes.skillz.secondary');
+
+        $skillPlan->load('skillz');
+        $skillType->load('skillAttributes');
+        $skillAttributes = $skillType->skillAttributes->keyBy('attribute_id');
+        $skillRank = (int)$skillAttributes->get($attributeRank)->value;
+        $skillPriAttr = collect(config('services.eve.dogma.attributes.map'))->get((int)$skillAttributes->get(config('services.eve.dogma.attributes.skillz.primary'))->value);
+        $skillSecAttr = collect(config('services.eve.dogma.attributes.map'))->get((int)$skillAttributes->get(config('services.eve.dogma.attributes.skillz.secondary'))->value);
+
+        $skillOnPlan = $skillPlan->skillz->where('type_id', $skillType->id);
+        $skillsToAttach = collect();
+        if ($skillOnPlan->isNotEmpty()) {
+            $highest = $skillOnPlan->last()->level;
+            if ($highest == 5) {
+                return collect([
+                    'status' => false,
+                    'id' => "skillAlreadyOnPlan",
+                    'skill' => $skillType->id,
+                    'message' => "The skill ". $skill ." is already on this skill plan at its maxed level."
+                ]);
+            }
+            $skillsToAttach->push(collect([
+                'type_id' => $skillType->id,
+                'level' => $highest + 1,
+                'rank' => $skillRank,
+                'primaryAttribute' => $skillPriAttr,
+                'secondaryAttribute' => $skillSecAttr
+            ]));
+        } else {
+            $skillPrereqs = $this->collectSkillRequirements($skillType);
+            foreach($skillPrereqs as $prereq){
+                $likeSkillz = $skillsToAttach->where('type_id', $prereq->get('type_id'));
+                $lastLvl = 1;
+                if ($likeSkillz->isNotEmpty()) {
+                    $lastLvl = $likeSkillz->last()->get('level');
+                    $lastLvl++;
+                }
+                $newLevel = Request::has('allSkillzV') ? 5 : $prereq->get('level');
+                for($x=$lastLvl;$x<=$newLevel;$x++) {
+                    $skillsToAttach->push(collect([
+                        'level' => $x,
+                        'rank' => $prereq->get('rank'),
+                        'type_id' => $prereq->get('type_id'),
+                        'primaryAttribute' => $prereq->get('primaryAttribute'),
+                        'secondaryAttribute' => $prereq->get('secondaryAttribute')
+                    ]));
+                }
+            }
+
+            for($x=1;$x<=$level;$x++) {
+                $skillsToAttach->push(collect([
+                    'level' => $x,
+                    'rank' => $skillRank,
+                    'type_id' => $skillType->id,
+                    'primaryAttribute' => $skillPriAttr,
+                    'secondaryAttribute' => $skillSecAttr
+               ]));
+            }
+        }
+
+        $skillPlanSkillz = $skillPlan->skillz;
+        $skillsToAttach->each(function ($details, $key) use ($skillPlanSkillz, $skillsToAttach) {
+            $hasSkill = $skillPlanSkillz->where('type_id', $details->get('type_id'));
+            if ($hasSkill->isNotEmpty()) {
+                $hasLevel = $hasSkill->where('level', $details->get('level'));
+                if ($hasLevel->isNotEmpty()) {
+                    $skillsToAttach->forget($key);
+                }
+            }
+        });
+        $total = $skillPlanSkillz->count() + 1;
+        foreach($skillsToAttach as $requiredSkill) {
+            $requiredSkill->put('position', $total);
+            $total += 1;
+        }
+        $skillPlan->skillz()->createMany($skillsToAttach->toArray());
+        $skillPlan->load('skillz');
+        $this->calculateTrainingTimeAndSP($skillPlan);
+        Cache::forget($skillPlan->id);
+        $skillTree = $this->generateSkillTree($skillPlan);
+        Cache::put($skillPlan->id, $skillTree->toJson());
+
+        return collect([
+            'status' => true,
+            'skillplan' => $skillPlan
+        ]);
+    }
+
 
     public function calculateTrainingTimeAndSP(SkillPlan $skillPlan)
     {
