@@ -562,7 +562,6 @@ class SkillPlanController extends Controller
                 if ($skillAttributes->has($skillId) && $skillAttributes->has($skillLvl)) {
                     $id = (int)$skillAttributes->get($skillId)->value;
                     $lvl = (int)$skillAttributes->get($skillLvl)->value;
-                    $skill = $results->where('type_id', $id);
                     $requiredSkillType = $this->dataCont->getType($id);
                     $status = $requiredSkillType->get('status');
                     $payload = $requiredSkillType->get('payload');
@@ -571,27 +570,14 @@ class SkillPlanController extends Controller
                         $requiredSkillRank = (int)$requiredSkillType->skillAttributes->where('attribute_id', $rankKey)->first()->value;
                         $requiredSkillPriAttr = collect(config('services.eve.dogma.attributes.map'))->get((int)$requiredSkillType->skillAttributes->where('attribute_id', $priAttrKey)->first()->value);
                         $requiredSkillSecAttr = collect(config('services.eve.dogma.attributes.map'))->get((int)$requiredSkillType->skillAttributes->where('attribute_id', $secAttrKey)->first()->value);
-                        if ($skill->isNotEmpty()) {
-                            $level = $skill->sortByDesc('level')->first();
-                            if ($level->get('level') != $lvl) {
-                                $results->prepend(collect([
-                                    'level' => $lvl,
-                                    'type_id' => $id,
-                                    'rank' => $requiredSkillRank,
-                                    'primaryAttribute' => $requiredSkillPriAttr,
-                                    'secondaryAttribute' => $requiredSkillSecAttr
-                                ]));
-                            }
-                        } else {
-                            $results->prepend(collect([
-                                'level' => $lvl,
-                                'type_id' => $id,
-                                'rank' => $requiredSkillRank,
-                                'primaryAttribute' => $requiredSkillPriAttr,
-                                'secondaryAttribute' => $requiredSkillSecAttr
-                            ]));
-                        }
-                        unset($id, $lvl, $skill);
+                        $results->prepend(collect([
+                            'level' => $lvl,
+                            'type_id' => $id,
+                            'rank' => $requiredSkillRank,
+                            'primaryAttribute' => $requiredSkillPriAttr,
+                            'secondaryAttribute' => $requiredSkillSecAttr
+                        ]));
+                        unset($id, $lvl);
                         $results = $this->collectSkillRequirements($requiredSkillType, $results);
                     }
                 }
