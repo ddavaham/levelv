@@ -214,12 +214,12 @@ return [
         'updateInterval' => env('JOB_STATUS_REFRESH_INTERVAL', 10)
     ],
 
-    "bitbucket" => [
+    "github" => [
         "urls" => [
-            "overview" => "https://bitbucket.org/devoverlord/levelv",
-            "issues" => "https://bitbucket.org/devoverlord/levelv/issues",
-            "commit" => "https://bitbucket.org/devoverlord/levelv/commits",
-            "branches" => "https://bitbucket.org/devoverlord/levelv/branches"
+            "overview" => "https://github.com/ddavaham/levelv",
+            "issues" => "https://github.com/ddavaham/levelv/issues",
+            "commit" => "https://github.com/ddavaham/levelv/commits",
+            "branches" => "https://github.com/ddavaham/levelv/branches"
         ]
     ]
 

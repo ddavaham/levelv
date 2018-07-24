@@ -1,6 +1,6 @@
 @extends('layout.index')
 
-@section('title', Auth::user()->info->name . " Dashboard")
+@section('title', $member->info->name . " Dashboard")
 
 @section('content')
     <div class="container">
@@ -77,19 +77,39 @@
                                         <th>
                                             Skillpoints in Skill
                                         </th>
-                                        @foreach ($skillGroup->get('skillz') as $skillz)
+                                        @foreach ($skillGroup->get('skillz') as $skill)
                                             <tr>
                                                 <td width=35%>
-                                                    {{ $skillz->name }}
+                                                    @if($skill->pivot->trained_skill_level < 5)
+                                                        <div class="float-right">
+                                                            <form action="{{ route('overview', ['member' => $member->id]) }}" method="post">
+                                                                {{ csrf_field() }}
+                                                                <input type="hidden" name="id" value="{{ $skill->id }}" />
+                                                                <input type="hidden" name="level" value="{{ (int)$skill->pivot->trained_skill_level++ }}" />
+                                                                <div class="btn-group">
+                                                                    <button type="button" class="btn btn-secondary dropdown-toggle-no-caret" data-toggle="dropdown">
+                                                                        <i class="fas fa-plus"></i>
+                                                                    </button>
+                                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                                        <button class="dropdown-item disabled" type="button">Select a Skillplan Below</button>
+                                                                        @foreach (Auth::user()->plans as $plan)
+                                                                            <button type="submit" name="addSkillToPlan" value="{{ $plan->id }}" class="dropdown-item">{{ $plan->name }}</button>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    @endif
+                                                    {{ $skill->name }}
                                                 </td>
                                                 <td class="text-center">
-                                                    {{ $skillz->pivot->active_skill_level }}
+                                                    {{ $skill->pivot->active_skill_level }}
                                                 </td>
                                                 <td class="text-center">
-                                                    {{ $skillz->pivot->trained_skill_level }}
+                                                    {{ $skill->pivot->trained_skill_level }}
                                                 </td>
                                                 <td class="text-center">
-                                                    {{ number_format($skillz->pivot->skillpoints_in_skill, 0) }}
+                                                    {{ number_format($skill->pivot->skillpoints_in_skill, 0) }}
                                                 </td>
                                             </tr>
                                         @endforeach

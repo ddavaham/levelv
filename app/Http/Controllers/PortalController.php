@@ -4,12 +4,14 @@ namespace LevelV\Http\Controllers;
 
 use Auth, Carbon, Request, Session, Validator;
 use LevelV\Models\Member;
+use LevelV\Models\ESI\Type;
 
 class PortalController extends Controller
 {
     public function __construct()
     {
         $this->dataCont = new DataController;
+        $this->skillCont = new SkillPlanController;
     }
 
     public function attributes(int $member)
@@ -42,6 +44,45 @@ class PortalController extends Controller
     public function overview (int $member)
     {
         $member = Member::findOrFail($member);
+        if (Request::isMethod('post')) {
+
+            $validator = Validator::make(Request::all(), [
+                'id' => 'required|numeric',
+                'level' => "required|numeric|min:1|max:5",
+                'addSkillToPlan' => "required"
+            ]);
+            if ($validator->fails()) {
+                return redirect(route('overview', ['member' => $member->id]))->withErrors($validator);
+            }
+            $plan = Auth::user()->plans->where('id', Request::get('addSkillToPlan'))->first();
+            $type = Type::find(Request::get('id'));
+            if (is_null($plan) || is_null($type)) {
+                Session::flash('alert', [
+                   "header" => "Unable to Add Skill",
+                   'message' => "An error occured while attempting to add the skill. Please try again",
+                   'type' => 'info',
+                   'close' => 1
+                ]);
+                return redirect(route('overview', ['member' => $member->id]));
+            }
+            $addSkill = $this->skillCont->addSkillToPlan($plan, $type, (int)Request::get('level'));
+            if (!$addSkill->get('status')) {
+                Session::flash('alert', [
+                    'header' => "Unable to Add Skill",
+                    'message' => $addSkill->get('message'),
+                    'type' => 'info',
+                    'close' => 1
+                ]);
+            } else {
+                Session::flash('alert', [
+                    'header' => "Successfully Added Skill",
+                    'message' => "The skill ". $type->name. " has been successfully added to the skill plan ". $plan->name,
+                    'type' => 'success',
+                    'close' => 1
+                ]);
+            }
+            return redirect(route('overview', ['member' => $member->id]));
+        }
         $skillList = collect();
         $member->skillz->load('group')->each(function ($skill) use ($member, $skillList) {
             if (!$skillList->has($skill->group_id)) {
@@ -180,15 +221,6 @@ class PortalController extends Controller
                 return redirect(route('welcome'));
             }
             $getMemberData = $this->dataCont->getMemberData($ssoResponse->get('CharacterID'));
-            // if (($ssoResponse->get('CharacterID') != Auth::user()->id)) {
-            //     Session::flash('alert', [
-            //         "header" => "Invalid Scope Authorization",
-            //         'message' => "The character that you logged in with is different then the character that you just authorized the scopes on. PLease try again and select the correct toon. In this case that is" . Auth::user()->info->name,
-            //         'type' => 'danger',
-            //         'close' => 1
-            //     ]);
-            //     return redirect(route('welcome'));
-            // }
             $status = $getMemberData->get('status');
             $payload = $getMemberData->get('payload');
             if (!$status) {
