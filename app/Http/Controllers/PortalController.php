@@ -24,7 +24,6 @@ class PortalController extends Controller
     {
         $member = Member::findOrFail($member);
         $member->load('clones');
-        // dd($member->clones->first()->implants);
         return view('portal.clones')->withMember($member);
     }
 

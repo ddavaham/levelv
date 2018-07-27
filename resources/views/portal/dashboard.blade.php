@@ -38,7 +38,6 @@
                         </li>
                         <li class="list-group-item">
                             <em>This module updates every {{ config('services.eve.updateInterval') }} seconds</em><br>
-                            <em>This module only reflects the job count of the currently logged in character</em>
                         </li>
                     </div>
                 </div>
@@ -83,7 +82,6 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function (data, textStatus, request) {
-                    console.log(data)
                     document.getElementById('countPending').innerHTML = data.pending;
                     document.getElementById('countFinished').innerHTML = data.finished;
                     document.getElementById('countFailed').innerHTML = data.failed;
