@@ -42,7 +42,7 @@
         <hr />
         <div class="row">
             <div class="col-lg-3">
-                @include('portal.extra.account')
+                @include('portal.extra.character')
             </div>
             <div class="col-lg-9">
                 <h5>

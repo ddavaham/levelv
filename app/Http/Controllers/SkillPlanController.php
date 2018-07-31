@@ -50,7 +50,7 @@ class SkillPlanController extends Controller
             ]);
             return redirect(route('skillplan.view', ['skillplan' => $create->id]));
         }
-        $skillPlans = SkillPlan::pageinate(50);
+        $skillPlans = SkillPlan::paginate(50);
         return view('portal.skillplans.list', [
             'skillPlans' => $skillPlans
         ]);
@@ -150,7 +150,7 @@ class SkillPlanController extends Controller
                     }
                     $typeId = $payload->get('inventory_type')->first();
                     $type = $this->dataCont->getType($typeId);
-                    $status = $skillType->get('status');
+                    $status = $type->get('status');
                     if (!$status) {
                         Session::flash('alert', [
                             'header' => "Unable to Add Skill",
@@ -160,13 +160,14 @@ class SkillPlanController extends Controller
                         ]);
                         return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $skillPlan->id]));
                     }
-                    $type = $type->load('skillAttributes');
+                    $type = $type->get('payload');
+                    $type->load('skillAttributes');
                     if ($type->category_id == 16) {
-                        $addSkill = $this->addSkillToPlan($skillPlan, $skillType, (int)Request::get('skillToAddLevel'), (bool) Request::has('allSkillzV'));
+                        $addSkill = $this->addSkillToPlan($skillPlan, $type, (int)Request::get('skillToAddLevel'), (bool) Request::has('allSkillzV'));
                         if (!$addSkill->get('status')) {
                             Session::flash('alert', [
                                 'header' => "Unable to Add Skill",
-                                'message' => $addSkill->get('message'),
+                                'message' => $addSkill->get('payload')->get('message'),
                                 'type' => 'info',
                                 'close' => 1
                             ]);
@@ -181,31 +182,35 @@ class SkillPlanController extends Controller
                         return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $skillPlan->id]));
                     } else {
                         $skillMap = collect(config('services.eve.dogma.attributes.skillz.map'));
-                        $skillAttributes = $skillType->skillAttributes->keyBy('attribute_id');
+                        $skillAttributes = $type->skillAttributes->keyBy('attribute_id');
                         foreach($skillMap as $skillId => $skillLvl) {
                             if ($skillAttributes->has($skillId) && $skillAttributes->has($skillLvl)) {
                                 $id = (int)$skillAttributes->get($skillId)->value;
                                 $lvl = (int)$skillAttributes->get($skillLvl)->value;
-                                $requiredSkillType = $this->dataCont->getType($id);
-                                $status = $requiredSkillType->get('status');
-                                $payload = $requiredSkillType->get('payload');
-                                if ($status) {
-                                    $requiredSkillType = $payload->load('skillAttributes');
-                                    $requiredSkillRank = (int)$requiredSkillType->skillAttributes->where('attribute_id', $rankKey)->first()->value;
-                                    $requiredSkillPriAttr = collect(config('services.eve.dogma.attributes.map'))->get((int)$requiredSkillType->skillAttributes->where('attribute_id', $priAttrKey)->first()->value);
-                                    $requiredSkillSecAttr = collect(config('services.eve.dogma.attributes.map'))->get((int)$requiredSkillType->skillAttributes->where('attribute_id', $secAttrKey)->first()->value);
-                                    $results->prepend(collect([
-                                        'level' => $lvl,
-                                        'type_id' => $id,
-                                        'rank' => $requiredSkillRank,
-                                        'primaryAttribute' => $requiredSkillPriAttr,
-                                        'secondaryAttribute' => $requiredSkillSecAttr
-                                    ]));
-                                    unset($id, $lvl);
-                                    $results = $this->collectSkillRequirements($requiredSkillType, $results);
+                                $skillType = $this->dataCont->getType($id);
+                                if (!$skillType->get('status')) {
+                                    Session::flash('alert', [
+                                        'header' => "Unable to Add Skill",
+                                        'message' => $skillType->get('payload')->get('message'),
+                                        'type' => 'info',
+                                        'close' => 1
+                                    ]);
+                                }
+                                $skillType =$skillType->get('payload');
+                                $skillType->load('skillAttributes');
+                                $addSkill = $this->addSkillToPlan($skillPlan, $skillType, (int)$lvl, (bool) Request::has('allSkillzV'));
+                                if (!$addSkill->get('status')) {
+                                    Session::flash('alert', [
+                                        'header' => "Unable to Add Skill",
+                                        'message' => $addSkill->get('payload')->get('message'),
+                                        'type' => 'info',
+                                        'close' => 1
+                                    ]);
+                                    break;
                                 }
                             }
                         }
+                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
                     }
                 }
                 if ($action === "updateAttributes" && Request::has('attributes')) {
@@ -439,7 +444,7 @@ class SkillPlanController extends Controller
                     $lastLvl = $likeSkillz->last()->get('level');
                     $lastLvl++;
                 }
-                $newLevel = !is_null($allSkillzV) ? 5 : $prereq->get('level');
+                $newLevel = $allSkillzV ? 5 : $prereq->get('level');
                 for($x=$lastLvl;$x<=$newLevel;$x++) {
                     $skillsToAttach->push(collect([
                         'level' => $x,
@@ -450,7 +455,7 @@ class SkillPlanController extends Controller
                     ]));
                 }
             }
-            $skillsToAttach->dd();
+
             for($x=1;$x<=$level;$x++) {
                 $skillsToAttach->push(collect([
                     'level' => $x,

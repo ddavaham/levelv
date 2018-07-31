@@ -22,7 +22,7 @@
 
                 <hr />
                 <div class="collapse {{ $plan->skillz->count() == 0 ? "show" : "" }}" id="addSkillCollapse">
-                    <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                         <div class="row">
                             <div class="form-group col-md-9">
                                 <label for="addSkill">Start Typing Skill to Add:</label>
@@ -63,7 +63,7 @@
                     @foreach ($plan->skillz as $key=>$skill)
                         <li class="list-group-item" id="{{ $key }}">
                             <div class="float-right mt-2">
-                                <form action="{{ route('skillplan.view', ['member' => $member->main,'skillplan' => $plan->id, 'delete' => $key]) }}" method="post">
+                                <form action="{{ route('skillplan.view', ['skillplan' => $plan->id, 'delete' => $key]) }}" method="post">
                                     {{ csrf_field() }}
                                     @if ($skill->trained == 2)
                                         <button type="button" class="btn btn-sm btn-success disabled" title="Skill Meets Skillplan Requirements">
@@ -89,7 +89,7 @@
                         </li>
                     @endforeach
                 </ul>
-                <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                     {{ csrf_field() }}
                     <input type="hidden" id="submittedList" name="submittedList" value="{{ $plan->skillz->keys()->implode(",") }}" />
                     <button type="submit" name="action" value="save" class="btn btn-primary mt-2">Save Plan</button>
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                 </div>
-                <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                     <div class="card">
                         <div class="card-header" data-toggle="collapse" data-target="#attributesBody">
                             {{ $plan->name }} Attributes <small>Click to Collapse</small>
@@ -188,7 +188,7 @@
                     </div>
                     <div class="collapse" id="planRemaps">
                         <div class="card-body p-0">
-                            <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                            <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                                 <table class="table table-bordered m-0">
                                     @foreach ($plan->remaps as $key => $value)
                                         <tr>
@@ -303,7 +303,7 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                         {{ method_field('delete') }}
                         {{ csrf_field() }}
                         <div class="float-left">
@@ -331,7 +331,7 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                         {{ method_field('delete') }}
                         {{ csrf_field() }}
                         <div class="float-left">
@@ -359,7 +359,7 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                         {{ csrf_field() }}
                         <div class="float-left">
                             <button type="submit" name="action" value="makePublic" class="btn btn-primary">Yes, Make the Plan Public!</button>
@@ -385,7 +385,7 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                         {{ csrf_field() }}
                         <div class="float-left">
                             <button type="submit" name="action" value="makePrivate" class="btn btn-primary">Yes, Make the Plan Private</button>
@@ -424,7 +424,7 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <form action="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" method="post">
+                        <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
                             {{ csrf_field() }}
                             <div class="float-left">
                                 <input type="hidden" name="deletePosition" value="{{ $key }}"  />

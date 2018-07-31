@@ -13,14 +13,14 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-                @include('portal.extra.character')
+                @include('portal.extra.account')
             </div>
             <div class="col-md-8">
                 <h3 class="text-center">Skillplan List</h3>
                 <hr />
                 <div class="list-group">
                     @forelse ($skillPlans as $plan)
-                        <a href="{{ route('skillplan.view', ['member' => $member->main, 'skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">
+                        <a href="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">
                             <div class="media mt-0">
                                 <div class="media-body align-center">
                                     <h4>{{ $plan->name }}</h4>

@@ -13,6 +13,8 @@
         </div>
         <div class="row">
             <div class="col-md-4">
+                @include('portal.extra.account')
+                <hr />
                 <div class="card">
                     <div class="card-header">
                         Job Status
@@ -23,18 +25,6 @@
                                 <span id="countPending">{{ $jobs->get('pending') }}</span>
                             </div>
                             Pending Jobs
-                        </li>
-                        <li class="list-group-item">
-                            <div class="float-right">
-                                <span id="countFinished">{{ $jobs->get('finished') }}</span>
-                            </div>
-                            Completed Jobs
-                        </li>
-                        <li class="list-group-item">
-                            <div class="float-right">
-                                <span id="countFailed">{{ $jobs->get('failed') }}</span>
-                            </div>
-                             Jobs That Failed
                         </li>
                         <li class="list-group-item">
                             <em>This module updates every {{ config('services.eve.updateInterval') }} seconds</em><br>
