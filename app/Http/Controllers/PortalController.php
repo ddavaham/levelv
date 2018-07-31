@@ -44,7 +44,6 @@ class PortalController extends Controller
     {
         $member = Member::findOrFail($member);
         if (Request::isMethod('post')) {
-
             $validator = Validator::make(Request::all(), [
                 'id' => 'required|numeric',
                 'level' => "required|numeric|min:1|max:5",
@@ -94,7 +93,6 @@ class PortalController extends Controller
                 ]));
             }
         });
-
         $skillList = $skillList->sortBy('name');
 
         $nextSkillComplete = $member->queue()->orderby('member_skill_queue.queue_position', 'asc')->first();
