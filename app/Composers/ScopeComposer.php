@@ -15,9 +15,6 @@ class ScopeComposer
                 if (Auth::user()->id == $memberId) {
                     $view->with('scopes', Auth::user()->scopes);
                 } else {
-                    // $accessee = Auth::user()->accessee->keyBy('id')->get($memberId);
-                    // $accessableScopes = collect(json_decode($accessee->pivot->access, true));
-                    // $view->with('scopes', $accessableScopes);
                     $alt = Auth::user()->alts->keyBy('id')->get($memberId);
                     $view->with('scopes', $alt->scopes);
                 }
