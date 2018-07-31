@@ -13,7 +13,7 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-                @include('portal.extra.portal')
+                @include('portal.extra.character')
             </div>
             <div class="col-md-8">
                 <h3 class="text-center">Skillplan List</h3>
