@@ -85,7 +85,7 @@
                                                             <form action="{{ route('overview', ['member' => $member->id]) }}" method="post">
                                                                 {{ csrf_field() }}
                                                                 <input type="hidden" name="id" value="{{ $skill->id }}" />
-                                                                <input type="hidden" name="level" value="{{ (int)$skill->pivot->trained_skill_level++ }}" />
+                                                                <input type="hidden" name="level" value="{{ (int) $skill->pivot->trained_skill_level + 1 }}" />
                                                                 <div class="btn-group">
                                                                     <button type="button" class="btn btn-secondary dropdown-toggle-no-caret" data-toggle="dropdown">
                                                                         <i class="fas fa-plus"></i>
