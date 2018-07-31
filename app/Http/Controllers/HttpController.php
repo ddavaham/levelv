@@ -135,6 +135,18 @@ class HttpController extends Controller
         ], 'get', config('services.eve.urls.esi'),"/v1/status/", []);
     }
 
+    public function getSearch ($search, $category, $strict=false)
+    {
+        return $this->request([
+            "Content-Type" => "application/json",
+            "User-Agent" => config('services.eve.userAgent')
+        ], 'get', config('services.eve.urls.esi'),"/v2/search/", [
+            'search' => $search,
+            'categories' => $category,
+            'strict' => $strict
+        ]);
+    }
+
     public function getCharactersCharacterIdClones($id, $token)
     {
         return $this->request([

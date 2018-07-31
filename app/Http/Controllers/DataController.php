@@ -391,6 +391,12 @@ class DataController extends Controller
         return $request;
     }
 
+    public function getSearch ($category, $string, $strict=false)
+    {
+        return $this->httpCont->getSearch($string, $category, $strict);
+    }
+
+
     /**
     * Queries Database to see if the structure exists, if it doesn't a GET HTTP Request is made to ESI /universe/structure/{structure_id} to get the structure data
     *
@@ -590,7 +596,7 @@ class DataController extends Controller
         return $this->httpCont->getMapRegions();
     }
 
-    private function shouldDispatchJob($class, $args) {
+    public function shouldDispatchJob($class, $args) {
         $check = JobStatus::where('type', $class);
         foreach ($args as $key=>$value) {
             $check=$check->where('input->'.$key, $value);
