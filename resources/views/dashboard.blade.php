@@ -42,11 +42,8 @@
                                 <img src="{{ config('services.eve.urls.img') }}/Character/{{ $alt->id }}_64.jpg" class="rounded img-fluid mr-3" />
                                 <div class="media-body align-center">
                                     <h4>
-                                        {{ $alt->info->name }} @if (Auth::user()->main == $alt->id) {{ "[Main]" }} @else {{ "[Alt]" }} @endif
+                                        [{{ $alt->info->corporation->ticker }}] {{ $alt->info->name }} @if (Auth::user()->main == $alt->id) {{ "[Main]" }} @else {{ "[Alt]" }} @endif
                                     </h4>
-                                    <p>
-                                        {{ $alt->info->corporation->name }} / @if(!is_null($alt->info->alliance)) {{ $alt->info->alliance->name }} @endif
-                                    </p>
                                 </div>
                             </div>
                         </a>
@@ -73,8 +70,6 @@
                 dataType: 'json',
                 success: function (data, textStatus, request) {
                     document.getElementById('countPending').innerHTML = data.pending;
-                    document.getElementById('countFinished').innerHTML = data.finished;
-                    document.getElementById('countFailed').innerHTML = data.failed;
                     if (data.pending == 0) {
                         clearInterval(update);
                     }

@@ -12,95 +12,139 @@
         <div class="row">
             <div class="col-md-8">
                 <h3 class="text-center">
-                    <div class="float-right">
-                        <a href="#" data-toggle="collapse" data-target="#addSkillCollapse">
-                            <i class="fas fa-plus"></i>
-                        </a>
-                    </div>
+                    @if (Auth::user()->id == $plan->author_id)
+                        <div class="float-right">
+                            <a href="#" data-toggle="collapse" data-target="#addSkillCollapse">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                    @endif
                     {{ $plan->name }} SkillList
                 </h3>
-
                 <hr />
-                <div class="collapse {{ $plan->skillz->count() == 0 ? "show" : "" }}" id="addSkillCollapse">
-                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
-                        <div class="row">
-                            <div class="form-group col-md-9">
-                                <label for="addSkill">Start Typing Skill to Add:</label>
-                                <input type="text" name="skillToAdd" id="skillToAdd" class="form-control" value="{{ old('addSkill') }}" placeholder="Skill Name" />
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label for="skillToAddLevel">Skill Level:</label>
-                                <select name="skillToAddLevel" id="skillToAddLevel" class="form-control ml-0">
-                                    @for($x=1;$x<=5;$x++)
-                                        <option value="{{ $x }}">Level {{ num2rom($x) }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-group mb-0 mt-0">
-                                    <label for="allSkillzV">
-                                        <input type="checkbox" name="allSkillzV" id="allSkillzV" /> All Prereqs to Level V
-                                    </label>
+                @if (Auth::user()->id == $plan->author_id)
+                    <div class="collapse {{ $plan->skillz->count() == 0 ? "show" : "" }}" id="addSkillCollapse">
+                        <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
+                            <div class="row">
+                                <div class="form-group col-md-9">
+                                    <label for="addSkill">Type Name of Any Item To Skillz:</label>
+                                    <input type="text" name="skillToAdd" id="skillToAdd" class="form-control" value="{{ old('addSkill') }}" placeholder="Skill Name" />
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="skillToAddLevel">Skill Level:</label>
+                                    <select name="skillToAddLevel" id="skillToAddLevel" class="form-control ml-0">
+                                        @for($x=1;$x<=5;$x++)
+                                            <option value="{{ $x }}">Level {{ num2rom($x) }}</option>
+                                        @endfor
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-group">
-                                    {{ csrf_field() }}
-                                    <button type="submit" name="action" value="addSkill" class="btn btn-sm btn-primary">Submit Skill</button>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group mb-0 mt-0">
+                                        <label for="allSkillzV">
+                                            <input type="checkbox" name="allSkillzV" id="allSkillzV" /> All Prereqs to Level V
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        {{ csrf_field() }}
+                                        <button type="submit" name="action" value="addSkill" class="btn btn-sm btn-primary">Submit Skill</button>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <hr />
-                    </form>
-                </div>
+                            <hr />
+                        </form>
+                    </div>
+                @endif
                 @include('extra.alert')
-                <ul class="list-group sortable" id="skillList">
-                    @foreach ($plan->skillz as $key=>$skill)
-                        <li class="list-group-item" id="{{ $key }}">
-                            <div class="float-right mt-2">
-                                <form action="{{ route('skillplan.view', ['skillplan' => $plan->id, 'delete' => $key]) }}" method="post">
-                                    {{ csrf_field() }}
-                                    @if ($skill->trained == 2)
-                                        <button type="button" class="btn btn-sm btn-success disabled" title="Skill Meets Skillplan Requirements">
-                                            <i class="fas fa-check-circle"></i>
-                                        </button>
-                                    @elseif ($skill->trained == 1)
-                                        <button type="button" class="btn btn-sm btn-warning disabled" title="Skill Is Injected, But does not meet this level">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                        </button>
-                                    @elseif ($skill->trained == 0)
-                                        <button type="button" class="btn btn-sm btn-danger disabled" title="Skill Is Not Injected.">
-                                            <i class="fas fa-times-circle"></i>
-                                        </button>
-                                    @endif
+                @if ($plan->skillz->count() > 0)
+                    <ul class="list-group sortable" id="skillList">
+                        @foreach ($plan->skillz as $key=>$skill)
+                            <li class="list-group-item" id="{{ $key }}">
+                                <div class="float-right mt-2">
+                                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id, 'delete' => $key]) }}" method="post">
+                                        {{ csrf_field() }}
+                                        @if ($skill->trained == 2)
+                                            <button type="button" class="btn btn-sm btn-success disabled" title="Skill Meets Skillplan Requirements">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                        @elseif ($skill->trained == 1)
+                                            <button type="button" class="btn btn-sm btn-warning disabled" title="Skill Is Injected, But does not meet this level">
+                                                <i class="fas fa-exclamation-circle"></i>
+                                            </button>
+                                        @elseif ($skill->trained == 0)
+                                            <button type="button" class="btn btn-sm btn-danger disabled" title="Skill Is Not Injected.">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                        @endif
 
-                                    <button type="submit" name="action" value="delete" class="btn btn-sm btn-secondary">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
+                                        <button type="submit" name="action" value="delete" class="btn btn-sm btn-secondary">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                <span data-skill="{{ $skill->type_id }}" data-level="{{ $skill->level }}">{{ $skill->info->name }} {{ num2rom($skill->level) }} (x{{ $skill->rank }})</span><br />
+                                <small>Primary Attribute: {{ ucfirst(collect(config('services.eve.dogma.attributes.map'))->get((int)$skill->info->skillAttributes->keyBy('attribute_id')->get(config('services.eve.dogma.attributes.skillz.primary'))->value)) }} / Secondary Attribute: {{ ucfirst(collect(config('services.eve.dogma.attributes.map'))->get((int)$skill->info->skillAttributes->keyBy('attribute_id')->get(config('services.eve.dogma.attributes.skillz.secondary'))->value)) }}</small>
+                            </li>
+                        @endforeach
+                    </ul>
+                    @if (Auth::user()->id == $plan->author_id)
+                        <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
+                            {{ csrf_field() }}
+                            <input type="hidden" id="submittedList" name="submittedList" value="{{ $plan->skillz->keys()->implode(",") }}" />
+                            <button type="submit" name="action" value="save" class="btn btn-primary mt-2">Save Plan</button>
+                        </form>
+                    @endif
+                @else
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="alert alert-success">
+                                <h4>Congratulations!</h4>
+                                <p>
+                                    You have completed all of the skillz on this skillplan!
+                                </p>
                             </div>
-                            <span data-skill="{{ $skill->type_id }}" data-level="{{ $skill->level }}">{{ $skill->info->name }} {{ num2rom($skill->level) }} (x{{ $skill->rank }})</span><br />
-                            <small>Primary Attribute: {{ ucfirst(collect(config('services.eve.dogma.attributes.map'))->get((int)$skill->info->skillAttributes->keyBy('attribute_id')->get(config('services.eve.dogma.attributes.skillz.primary'))->value)) }} / Secondary Attribute: {{ ucfirst(collect(config('services.eve.dogma.attributes.map'))->get((int)$skill->info->skillAttributes->keyBy('attribute_id')->get(config('services.eve.dogma.attributes.skillz.secondary'))->value)) }}</small>
-                        </li>
-                    @endforeach
-                </ul>
-                <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
-                    {{ csrf_field() }}
-                    <input type="hidden" id="submittedList" name="submittedList" value="{{ $plan->skillz->keys()->implode(",") }}" />
-                    <button type="submit" name="action" value="save" class="btn btn-primary mt-2">Save Plan</button>
-                </form>
+                        </div>
+                    </div>
+                @endif
+
             </div>
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header" data-toggle="collapse" data-target="#settingsBody">
-                        {{ $plan->name }} Settings <small>Click to Collapse</small>
+                    <div class="card-header" data-toggle="collapse" data-target="#legend">
+                        Legend <small>Click to Collapse</small>
                     </div>
-                    <div class="list-group collapse show" id="settingsBody">
+                    <div class="list-group collapse show" id="legend">
+                        <div class="list-group-item">
+                            <button type="button" class="btn btn-sm btn-success disabled mr-2" title="Skill Meets Skillplan Requirements">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            Skill Injected and Trained
+                        </div>
+                        <div class="list-group-item">
+                            <button type="button" class="btn btn-sm btn-warning disabled mr-2" title="Skill Is Injected, But does not meet this level">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </button>
+                            Skill Injected but not trained
+                        </div>
+                        <div class="list-group-item">
+                            <button type="button" class="btn btn-sm btn-danger disabled mr-2" title="Skill Is Not Injected.">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            Skill is not injected
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" data-toggle="collapse" data-target="#detailsBody">
+                        {{ $plan->name }} Details <small>Click to Collapse</small>
+                    </div>
+                    <div class="list-group collapse show" id="detailsBody">
                         <div class="list-group-item">
                             <div class="float-right">
                                 {{ $plan->skillz->count() }}
@@ -109,13 +153,13 @@
                         </div>
                         <div class="list-group-item">
                             <div class="float-right">
-                                {{ $plan->total_sp }}
+                                {{ $details->get('total_sp') }}
                             </div>
                             Total SP In Skillplan
                         </div>
                         <div class="list-group-item">
                             <div class="float-right">
-                                {{ $plan->training_time }}
+                                {{ $details->get('training_time') }}
                             </div>
                             Calculated Training Time
                         </div>
@@ -137,22 +181,53 @@
                             </div>
                             Secondary Attribute
                         </div>
-                        <div class="list-group-item">
-                            <div class="btn-group d-flex">
-                                <button type="button" class="btn btn-secondary w-100 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Action Menu
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    @if($plan->is_public)
-                                        <button type="button" data-toggle="modal" data-target="#makePlanPrivate" class="dropdown-item">Make Plan Private</button>
-                                    @else
-                                        <button type="button" data-toggle="modal" data-target="#makePlanPublic" class="dropdown-item">Make Plan Public</button>
-                                    @endif
-                                    <button type="button" data-toggle="modal" data-target="#deleteSkillz" class="dropdown-item">Delete All Skillz</button>
-                                    <button type="button" data-toggle="modal" data-target="#deletePlan" class="dropdown-item">Delete Plan</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" data-toggle="collapse" data-target="#memberListBody">
+                        {{ $plan->name }} Admins & Operators <small>Click to Collapse</small>
+                    </div>
+                    <div class="collapse" id="memberListBody">
+                        <div class="list-group">
+                            <?php $admin = $plan->members->where("role", "administrator")->first(); ?>
+                            <div class="list-group-item">
+                                <div class="media mt-0">
+                                    <img src="{{ config('services.eve.urls.img') }}/Character/{{ $admin->member_id }}_64.jpg" class="rounded img-fluid mr-3" />
+                                    <div class="media-body align-center">
+                                        <h5>
+                                            {{ $admin->info->name }}
+                                        </h5>
+                                        <span class="badge badge-pill badge-secondary">{{ ucfirst($admin->role) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        @if ($operators->where('member_id', Auth::user()->id)->first() !== null)
+                            <div class="card-footer">
+                                <a href="{{ route('skillplan.members', ['skillplan' => $plan->id]) }}" class="btn btn-primary btn-block">Members List</a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" data-toggle="collapse" data-target="#optionsBody">
+                        {{ $plan->name }} Options <small>Click to Collapse</small>
+                    </div>
+                    <div class="list-group collapse" id="optionsBody">
+                        @if (Request::has('showCompletedSkillz'))
+                            <a href="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">Hide Compeleted Skillz</a>
+                        @else
+                            <a href="{{ route('skillplan.view', ['skillplan' => $plan->id, 'showCompletedSkillz' => 1]) }}" class="list-group-item list-group-item-action">Show Compeleted Skillz</a>
+                        @endif
+                        @if (Auth::user()->id == $plan->author_id)
+                            @if($plan->is_public)
+                                <a href="#" data-toggle="modal" data-target="#makePlanPrivate" class="list-group-item list-group-item-action">Make Plan Private</a>
+                            @else
+                                <a href="#" data-toggle="modal" data-target="#makePlanPublic" class="list-group-item list-group-item-action">Make Plan Public</a>
+                            @endif
+                            <a href="#" data-toggle="modal" data-target="#deleteSkillz" class="list-group-item list-group-item-action">Delete All Skillz</a>
+                            <a href="#" data-toggle="modal" data-target="#deletePlan" class="list-group-item list-group-item-action">Delete Plan</a>
+                        @endif
                     </div>
                 </div>
                 <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
@@ -335,7 +410,7 @@
                         {{ method_field('delete') }}
                         {{ csrf_field() }}
                         <div class="float-left">
-                            <button type="submit" name="target" value="skillz" class="btn btn-danger">Yes, Nuke the Plan!</button>
+                            <button type="submit" name="target" value="plan" class="btn btn-danger">Yes, Nuke the Plan!</button>
                         </div>
                     </form>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Whoops!!! Close This</button>
