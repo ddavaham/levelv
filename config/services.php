@@ -63,7 +63,7 @@ return [
                     'key' => "readCharacterImplants",
                     'title' => "Read Character Implants",
                     'scope' => "esi-clones.read_implants.v1",
-                    'desc' => "Returns your current clones implants. Requried to calculate skill training time.",
+                    'desc' => "Returns your current clones implants. Required to calculate skill training time.",
                     'required' => true
                 ],
                 [
@@ -116,8 +116,6 @@ return [
                         'title' => "Read Character Skill Queue",
                         'desc' => "Scope required to read this character skill queue."
                     ],
-
-
                 ],
                 'optional' => [
                     [
@@ -160,7 +158,6 @@ return [
                     ]
                 ]
             ]
-
         ],
         'dogma' => [
             'attributes' => [
