@@ -12,12 +12,6 @@
 */
 
 Route::match(['GET'],'/', 'PublicController@home')->name('home');
-
-Route::match(['GET', 'POST'],'/skillplans', 'SkillPlanController@list')->name('skillplans.list');
-Route::match(['GET', 'POST', 'DELETE'],'/skillplan/{skillplan}', 'SkillPlanController@view')->name('skillplan.view');
-
-
-// Route::match(['GET'],'/fittings', 'FittingController@list')->name('fittings.list');
 // Route::match(['GET'],'/donate', 'PublicController@donate')->name('donate');
 
 
@@ -43,6 +37,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::match(['GET'], '/settings', 'SettingController@index')->name('settings.index');
     Route::match(['GET', 'DELETE'], '/settings/token', 'SettingController@token')->name('settings.token');
+
+    Route::match(['GET', 'POST'],'/skillplans', 'SkillPlanController@list')->name('skillplans.list');
+    Route::match(['GET', 'POST', 'DELETE'],'/skillplan/{skillplan}', 'SkillPlanController@view')->name('skillplan.view');
+    Route::match(['GET', 'POST', 'DELETE'],'/skillplan/{skillplan}/members', 'SkillPlanController@members')->name('skillplan.members');
 });
 
 
