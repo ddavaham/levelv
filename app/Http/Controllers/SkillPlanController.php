@@ -553,6 +553,24 @@ class SkillPlanController extends Controller
             'members' => $members
         ]);
     }
+
+    public function userHasAccess(Skillplan $skillPlan, Member $member)
+    {
+        $member->load('info.corporation');
+        $validIds = collect();
+        if ($member->info->corporation->alliance_id !== null) {
+            $validIds->push($member->info->corporation->alliance_id);
+        }
+        $validIds->push($member->info->corporation_id);
+        $validIds->push($member->id);
+
+        $hasAccess = $skillPlan->members()->whereIn('member_id', $validIds->toArray())->get();
+        if ($hasAccess->isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
     public function addSkillToPlan(SkillPlan $skillPlan, Type $skillType, int $level=null, bool $allSkillzV=null)
     {
         $attributeRank = config('services.eve.dogma.attributes.skillz.rank');
