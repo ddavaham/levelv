@@ -59,15 +59,27 @@ class SkillPlanController extends Controller
     public function view(string $skillPlan)
     {
         $skillPlan = SkillPlan::where(['id' => $skillPlan])->first();
-        // if (!$skillPlan->is_public && Auth::user()->main != $member->main) {
-        //     Session::flash('alert', [
-        //         'header' => "Public Access not Enabled",
-        //         'message' => "That skill plan is not available to the public right now. Only registered alts of the Auther my view that skillplan",
-        //         'type' => 'info',
-        //         'close' => 1
-        //     ]);
-        //     return redirect(route('skillplan.view', ['skillplan' => $create->id]));
-        // }
+        if (is_null($skillPlan)) {
+            Session::flash('alert', [
+                'header' => "Skillplan Not Found",
+                'message' => "That skillplan does not exists. Please try again. If problem persists and you are sure the hash is correct, please create issue on Github.",
+                'type' => 'danger',
+                'close' => 1
+            ]);
+            return redirect(route('skillplans.list'));
+        }
+        if ($skillPlan->isPrivate()) {
+            $hasAccess = $this->userHasAccess($skillPlan, Auth::user());
+            if (!$hasAccess) {
+                Session::flash('alert', [
+                    'header' => "Skillplan not accessible",
+                    'message' => "That skillplan is not public and not of the entities that you are currently a member of have access to this list.",
+                    'type' => 'danger',
+                    'close' => 1
+                ]);
+                return redirect(route('skillplans.list'));
+            }
+        }
         if (Request::isMethod('delete')) {
             if (Request::has('target')) {
                 $target = Request::get('target');
