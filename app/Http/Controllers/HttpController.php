@@ -267,7 +267,7 @@ class HttpController extends Controller
         ], 'get', config('services.eve.urls.esi'),"/v2/dogma/effects/{$id}/", []);
     }
 
-    public function postUniverseNames ($ids)
+    public function postUniverseNames (array $ids)
     {
         return $this->request([
             "Content-Type" => "application/json",
@@ -276,7 +276,7 @@ class HttpController extends Controller
         ], 'post', config('services.eve.urls.esi'),"/v2/universe/names/", json_encode($ids));
     }
 
-    public function postUniverseIds ($names)
+    public function postUniverseIds (array $names)
     {
         return $this->request([
             "Content-Type" => "application/json",

@@ -396,6 +396,10 @@ class DataController extends Controller
         return $this->httpCont->getSearch($string, $category, $strict);
     }
 
+    public function postUniverseNames(Collection $ids)
+    {
+        return $this->httpCont->postUniverseNames($ids->toArray());
+    }
 
     /**
     * Queries Database to see if the structure exists, if it doesn't a GET HTTP Request is made to ESI /universe/structure/{structure_id} to get the structure data

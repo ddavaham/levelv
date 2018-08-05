@@ -38,5 +38,9 @@ class SkillPlan extends Model
     public function getRemapsAttribute($remaps)
     {
         return collect(json_decode($remaps, true));
+    public function members()
+    {
+        return $this->hasMany(SkillPlanMembers::class, 'plan_id')->with('info');
+    }
     }
 }

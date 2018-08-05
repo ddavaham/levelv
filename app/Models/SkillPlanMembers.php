@@ -13,11 +13,6 @@ class SkillPlanMembers extends Model
     public $incrementing = false;
     protected static $unguarded = true;
 
-    // public function getRoleAttribute($role)
-    // {
-    //     return ucfirst($role);
-    // }
-
     public function info()
     {
         return $this->morphTo('info', 'member_type', 'member_id', 'id');

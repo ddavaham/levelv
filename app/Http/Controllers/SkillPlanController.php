@@ -403,6 +403,156 @@ class SkillPlanController extends Controller
         ]);
     }
 
+    public function members(string $skillPlan)
+    {
+        $skillPlan = SkillPlan::findOrFail($skillPlan);
+        if ($skillPlan->isPrivate()) {
+            $hasAccess = $this->userHasAccess($skillPlan, Auth::user());
+            if (!$hasAccess) {
+                Session::flash('alert', [
+                    'header' => "Skillplan not accessible",
+                    'message' => "That skillplan is not public and not of the entities that you are currently a member of have access to this list.",
+                    'type' => 'danger',
+                    'close' => 1
+                ]);
+                return redirect(route('skillplans.list'));
+            }
+        }
+        $members = $skillPlan->members()->paginate(25);
+        if (Request::isMethod('post')) {
+            $validator = Validator::make(Request::all(), [
+                'entityToAdd' => "sometimes|nullable|min:3|max:100",
+
+                // 'promoteEntity' => "required_without:entityToAdd,demoteEntity,removeEntity",
+                // 'demoteEntity' => "required_without:entityToAdd,removeEntity,promoteEntity",
+                // 'removeEntity' => "required_without:entityToAdd,demoteEntity,promoteEntity",
+            ]);
+            if ($validator->fails()) {
+                return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]))->withErrors($validator)->withInput();
+            }
+            if (Request::has('entityToAdd') && !is_null(Request::get('entityToAdd'))) {
+                $entity = Request::get('entityToAdd');
+                $search = $this->dataCont->getSearch("character,corporation,alliance", $entity, true);
+                // dd($search);
+                $status = $search->get('status');
+                $payload = collect($search->get('payload')->get('response'))->recursive();
+                if (!$status || ($status && $payload->isEmpty())) {
+                    Session::flash('alert', [
+                        'header' => "Unknown Entity",
+                        'message' => "CCP does not know who that entity is. Please try another entity.",
+                        'type' => 'danger',
+                        'close' => 1
+                    ]);
+                    return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]))->withInput();
+                }
+                $ids = $payload->flatten();
+                $getNames = $this->dataCont->postUniverseNames($ids);
+                $status = $getNames->get('status');
+                $payload = collect($getNames->get('payload')->get('response'))->recursive();
+                return view('skillplans.members', [
+                    'plan' => $skillPlan,
+                    'members' => $members,
+                    'results' => $payload->recursive()
+                ]);
+            }
+            if (Request::has('addEntity')) {
+                $entity = collect(explode("::", Request::get('addEntity')));
+                if ($entity->count() !== 2) {
+                    Session::flash('alert', [
+                        'header' => "Invalid Entity Selection",
+                        'message' => "Something went wrong with your entity selection. Please try again",
+                        'type' => 'danger',
+                        'close' => 1
+                    ]);
+                    return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]));
+                }
+                $id = $entity->get(0);
+                $type = $entity->get(1);
+                if ($type === "character") {
+                    $char = $this->dataCont->getCharacter($id);
+                    if (!$char->get('status')) {
+                        Session::flash('alert', [
+                            'header' => "Unable to Add Character",
+                            'message' => "We are unable to query ESI for details regarding this character. Please try again shortly.",
+                            'type' => 'danger',
+                            'close' => 1
+                        ]);
+                        return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]));
+                    }
+
+                    $skillPlan->members()->create([
+                        'member_id' => $id,
+                        'member_type' => $type,
+                        'role' => "member"
+                    ]);
+
+                    Session::flash('alert', [
+                        'header' => "Character Add To Plan Successfully",
+                        'message' => "We were successfully able to add the character " . $char->get('payload')->name . " to the skillplan.",
+                        'type' => 'success',
+                        'close' => 1
+                    ]);
+                }
+                if ($type === "corporation") {
+                    $corp = $this->dataCont->getCorporation($id);
+                    if (!$corp->get('status')) {
+                        Session::flash('alert', [
+                            'header' => "Unable to Add Corporation",
+                            'message' => "We are unable to query ESI for details regarding this corporation. Please try again shortly.",
+                            'type' => 'danger',
+                            'close' => 1
+                        ]);
+                        return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]));
+                    }
+
+                    $skillPlan->members()->create([
+                        'member_id' => $id,
+                        'member_type' => $type,
+                        'role' => "member"
+                    ]);
+
+                    Session::flash('alert', [
+                        'header' => "Corporation Add To Plan Successfully",
+                        'message' => "We were successfully able to add the corporation " . $corp->get('payload')->name . " to the skillplan.",
+                        'type' => 'success',
+                        'close' => 1
+                    ]);
+                }
+                if ($type === "alliance") {
+                    $alli = $this->dataCont->getAlliance($id);
+                    if (!$alli->get('status')) {
+                        Session::flash('alert', [
+                            'header' => "Unable to Add Alliance",
+                            'message' => "We are unable to query ESI for details regarding this alliance. Please try again shortly.",
+                            'type' => 'danger',
+                            'close' => 1
+                        ]);
+                        return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]));
+                    }
+
+                    $skillPlan->members()->create([
+                        'member_id' => $id,
+                        'member_type' => $type,
+                        'role' => "member"
+                    ]);
+
+                    Session::flash('alert', [
+                        'header' => "Alliance Add To Plan Successfully",
+                        'message' => "We were successfully able to add the alliance " . $alli->get('payload')->name . " to the skillplan.",
+                        'type' => 'success',
+                        'close' => 1
+                    ]);
+                }
+                return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]));
+            }
+
+        }
+
+        return view('skillplans.members', [
+            'plan' => $skillPlan,
+            'members' => $members
+        ]);
+    }
     public function addSkillToPlan(SkillPlan $skillPlan, Type $skillType, int $level=null, bool $allSkillzV=null)
     {
         $attributeRank = config('services.eve.dogma.attributes.skillz.rank');
