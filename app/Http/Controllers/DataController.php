@@ -528,6 +528,7 @@ class DataController extends Controller
                 'group_id' => $response->get('group_id'),
                 'volume' => $response->get('volume')
             ]);
+            $type->save();
             $type->load('group');
             $type->fill(['category_id' => $type->group->category_id]);
             $type->save();
