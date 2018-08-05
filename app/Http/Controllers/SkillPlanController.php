@@ -401,12 +401,17 @@ class SkillPlanController extends Controller
         // 0 = Skill Not Injected, 1 = Skill Inject, Not Trained, 2 = Skill At or Above Level
         $charSkillz = Auth::user()->skillz->keyBy('id');
         $missingSkillz = collect();
-        foreach ($skillPlan->skillz as $skill) {
+
+        foreach ($skillPlan->skillz as $key=>$skill) {
             if ($charSkillz->has($skill->type_id)) {
                 if ($charSkillz->get($skill->type_id)->pivot->trained_skill_level < $skill->level) {
                     $skill->trained = 1;
                 } else {
-                    $skill->trained = 2;
+                    if (Request::has('showCompletedSkillz')) {
+                        $skill->trained = 2;
+                    } else {
+                        $skillPlan->skillz->forget($key);
+                    }
                 }
             } else {
                 $skill->trained = 0;
@@ -415,7 +420,7 @@ class SkillPlanController extends Controller
                 }
             }
         }
-        return view('portal.skillplans.view', [
+
         $totalSP = 0;
         $trnTime = 0; // in Minutes
         $planAttributes = $skillPlan->attributes->recursive();
