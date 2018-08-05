@@ -637,21 +637,15 @@ class SkillPlanController extends Controller
         $skillsToAttach = collect();
         if ($skillOnPlan->isNotEmpty()) {
             $highest = $skillOnPlan->last()->level;
-            if ($highest == 5) {
-                return collect([
-                    'status' => false,
-                    'id' => "skillAlreadyOnPlan",
-                    'skill' => $skillType->id,
-                    'message' => "The skill ". $skill ." is already on this skill plan at its maxed level."
-                ]);
+            if ($highest < 5) {
+                $skillsToAttach->push(collect([
+                    'type_id' => $skillType->id,
+                    'level' => $highest + 1,
+                    'rank' => $skillRank,
+                    'primaryAttribute' => $skillPriAttr,
+                    'secondaryAttribute' => $skillSecAttr
+                ]));
             }
-            $skillsToAttach->push(collect([
-                'type_id' => $skillType->id,
-                'level' => $highest + 1,
-                'rank' => $skillRank,
-                'primaryAttribute' => $skillPriAttr,
-                'secondaryAttribute' => $skillSecAttr
-            ]));
         } else {
             $skillPrereqs = $this->collectSkillRequirements($skillType);
             foreach($skillPrereqs as $prereq){
