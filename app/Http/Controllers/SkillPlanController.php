@@ -443,7 +443,7 @@ class SkillPlanController extends Controller
             'total_sp' => number_format($totalSP, 0) . " SP"
         ]);
 
-        if ($skillPLan->isPrivate()) {
+        if ($skillPlan->isPrivate()) {
             $skillPlan->load('members');
 
             $operators = $skillPlan->members->whereIn('role',  ['administrator', 'operator']);
