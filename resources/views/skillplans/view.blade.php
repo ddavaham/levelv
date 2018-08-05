@@ -200,32 +200,34 @@
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header" data-toggle="collapse" data-target="#memberListBody">
-                        {{ $plan->name }} Admins & Operators <small>Click to Collapse</small>
-                    </div>
-                    <div class="collapse" id="memberListBody">
-                        <div class="list-group">
-                            <?php $admin = $plan->members->where("role", "administrator")->first(); ?>
-                            <div class="list-group-item">
-                                <div class="media mt-0">
-                                    <img src="{{ config('services.eve.urls.img') }}/Character/{{ $admin->member_id }}_64.jpg" class="rounded img-fluid mr-3" />
-                                    <div class="media-body align-center">
-                                        <h5>
-                                            {{ $admin->info->name }}
-                                        </h5>
-                                        <span class="badge badge-pill badge-secondary">{{ ucfirst($admin->role) }}</span>
+                @if ($plan->isPrivate())
+                    <div class="card">
+                        <div class="card-header" data-toggle="collapse" data-target="#memberListBody">
+                            {{ $plan->name }} Admins & Operators <small>Click to Collapse</small>
+                        </div>
+                        <div class="collapse" id="memberListBody">
+                            <div class="list-group">
+                                <?php $admin = $plan->members->where("role", "administrator")->first(); ?>
+                                <div class="list-group-item">
+                                    <div class="media mt-0">
+                                        <img src="{{ config('services.eve.urls.img') }}/Character/{{ $admin->member_id }}_64.jpg" class="rounded img-fluid mr-3" />
+                                        <div class="media-body align-center">
+                                            <h5>
+                                                {{ $admin->info->name }}
+                                            </h5>
+                                            <span class="badge badge-pill badge-secondary">{{ ucfirst($admin->role) }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            @if ($operators->where('member_id', Auth::user()->id)->first() !== null)
+                                <div class="card-footer">
+                                    <a href="{{ route('skillplan.members', ['skillplan' => $plan->id]) }}" class="btn btn-primary btn-block">Members List</a>
+                                </div>
+                            @endif
                         </div>
-                        @if ($operators->where('member_id', Auth::user()->id)->first() !== null)
-                            <div class="card-footer">
-                                <a href="{{ route('skillplan.members', ['skillplan' => $plan->id]) }}" class="btn btn-primary btn-block">Members List</a>
-                            </div>
-                        @endif
                     </div>
-                </div>
+                @endif
                 <div class="card">
                     <div class="card-header" data-toggle="collapse" data-target="#optionsBody">
                         {{ $plan->name }} Options <small>Click to Collapse</small>
@@ -247,80 +249,82 @@
                         @endif
                     </div>
                 </div>
-                <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
+                @if (Auth::user()->id == $plan->author_id)
+                    <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
+                        <div class="card">
+                            <div class="card-header" data-toggle="collapse" data-target="#attributesBody">
+                                {{ $plan->name }} Attributes <small>Click to Collapse</small>
+                            </div>
+                            <div class="collapse" id="attributesBody">
+                                <div class="card-body p-0">
+                                    <table class="table table-bordered m-0">
+                                        @foreach ($plan->attributes as $attribute => $value)
+                                            <tr>
+                                                <td>
+                                                    {{ ucfirst($attribute) }}
+                                                </td>
+                                                <td width=35%>
+                                                    <input type="number" name="attributes[{{ $attribute }}]" value="{{ $value }}" min="0" class="form-control form-control-sm"/>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                </div>
+                                <div class="card-footer">
+                                    {{ csrf_field() }}
+                                    <button type="submit" name="action" value="updateAttributes" class="btn btn-primary btn-block">Update Attributes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                     <div class="card">
-                        <div class="card-header" data-toggle="collapse" data-target="#attributesBody">
-                            {{ $plan->name }} Attributes <small>Click to Collapse</small>
+                        <div class="card-header" data-toggle="collapse" data-target="#planRemaps">
+                            {{ $plan->name }} Remaps <small>Click to Collapse</small>
                         </div>
-                        <div class="collapse" id="attributesBody">
+                        <div class="collapse" id="planRemaps">
                             <div class="card-body p-0">
-                                <table class="table table-bordered m-0">
-                                    @foreach ($plan->attributes as $attribute => $value)
-                                        <tr>
-                                            <td>
-                                                {{ ucfirst($attribute) }}
-                                            </td>
-                                            <td width=35%>
-                                                <input type="number" name="attributes[{{ $attribute }}]" value="{{ $value }}" min="0" class="form-control form-control-sm"/>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </table>
-                            </div>
-                            <div class="card-footer">
-                                {{ csrf_field() }}
-                                <button type="submit" name="action" value="updateAttributes" class="btn btn-primary btn-block">Update Attributes</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-                <div class="card">
-                    <div class="card-header" data-toggle="collapse" data-target="#planRemaps">
-                        {{ $plan->name }} Remaps <small>Click to Collapse</small>
-                    </div>
-                    <div class="collapse" id="planRemaps">
-                        <div class="card-body p-0">
-                            <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
-                                <table class="table table-bordered m-0">
-                                    @foreach ($plan->remaps as $key => $value)
+                                <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
+                                    <table class="table table-bordered m-0">
+                                        @foreach ($plan->remaps as $key => $value)
+                                            <tr>
+                                                <td colspan="2">
+                                                    <a href="#" data-toggle="modal" data-target="#remap_{{ $key }}">{{ $key + 1 }}. After {{ $plan->skillz->get($key)->info->name }} Level {{ $plan->skillz->get($key)->level }}</a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                         <tr>
                                             <td colspan="2">
-                                                <a href="#" data-toggle="modal" data-target="#remap_{{ $key }}">{{ $key + 1 }}. After {{ $plan->skillz->get($key)->info->name }} Level {{ $plan->skillz->get($key)->level }}</a>
+                                                <select name="afterPosition" class="form-control form-control-sm">
+                                                    <option value="">-- Select A Skill -- </option>
+                                                    @foreach ($plan->skillz as $skill)
+                                                        <option value="{{ $skill->position }}">{{ $skill->position + 1 }}. After {{ $skill->info->name }} Level {{ $skill->level }}</option>
+                                                    @endforeach
+                                                </select>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                    <tr>
-                                        <td colspan="2">
-                                            <select name="afterPosition" class="form-control form-control-sm">
-                                                <option value="">-- Select A Skill -- </option>
-                                                @foreach ($plan->skillz as $skill)
-                                                    <option value="{{ $skill->position }}">{{ $skill->position + 1 }}. After {{ $skill->info->name }} Level {{ $skill->level }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    @foreach ($plan->attributes as $attribute => $value)
+                                        @foreach ($plan->attributes as $attribute => $value)
+                                            <tr>
+                                                <td>
+                                                    {{ ucfirst($attribute) }}
+                                                </td>
+                                                <td width=35%>
+                                                    <input type="number" name="remappedAttr[{{ $attribute }}]" value="{{ $value }}" min="0" class="form-control form-control-sm"/>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                         <tr>
-                                            <td>
-                                                {{ ucfirst($attribute) }}
-                                            </td>
-                                            <td width=35%>
-                                                <input type="number" name="remappedAttr[{{ $attribute }}]" value="{{ $value }}" min="0" class="form-control form-control-sm"/>
+                                            <td colspan="2">
+                                                {{ csrf_field() }}
+                                                <button type="submit" name="action" value="addRemap" class="btn btn-block btn-primary">Add Remap</button>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                    <tr>
-                                        <td colspan="2">
-                                            {{ csrf_field() }}
-                                            <button type="submit" name="action" value="addRemap" class="btn btn-block btn-primary">Add Remap</button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </form>
-                        </div>
+                                    </table>
+                                </form>
+                            </div>
 
+                        </div>
                     </div>
-                </div>
+                @endif
                 <div class="card">
                     <div class="card-header" data-toggle="collapse" data-target="#planExport">
                         Export {{ $plan->name }} <small>Click to Collapse</small>
