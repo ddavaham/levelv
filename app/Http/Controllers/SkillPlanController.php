@@ -416,6 +416,25 @@ class SkillPlanController extends Controller
             }
         }
         return view('portal.skillplans.view', [
+        $totalSP = 0;
+        $trnTime = 0; // in Minutes
+        $planAttributes = $skillPlan->attributes->recursive();
+        foreach ($skillPlan->skillz as $key=>$skill) {
+            if ($skillPlan->remaps->has($skill->position - 1)) {
+                $planAttributes = collect($skillPlan->remaps->get($skill->position - 1));
+            }
+            $spInLevel = pow(2, 2.5 * ($skill->level - 1)) * 250 * $skill->rank;
+            $spPerMinute = $planAttributes->get($skill->primaryAttribute) + ($planAttributes->get($skill->secondaryAttribute)/2);
+            $trnTime += ceil($spInLevel/$spPerMinute);
+            $totalSP += $spInLevel;
+            unset($spInLevel,$spPerMinute);
+        }
+        $day = floor ($trnTime / 1440); $hour = floor (($trnTime - $day * 1440) / 60); $min = $trnTime - ($day * 1440) - ($hour * 60);
+
+        $details = collect([
+            'training_time' => number_format($day, 0). "d ".number_format($hour, 0)."h ".number_format($min, 0)."m",
+            'total_sp' => number_format($totalSP, 0) . " SP"
+        ]);
             'plan' => $skillPlan,
             'tree' => $skillTree,
             'attributeComp' => $attributeComp,
@@ -672,7 +691,6 @@ class SkillPlanController extends Controller
         }
         $skillPlan->skillz()->createMany($skillsToAttach->toArray());
         $skillPlan->load('skillz');
-        $this->calculateTrainingTimeAndSP($skillPlan);
         Cache::forget($skillPlan->id);
         $skillTree = $this->generateSkillTree($skillPlan);
         Cache::put($skillPlan->id, $skillTree->toJson());
@@ -681,30 +699,6 @@ class SkillPlanController extends Controller
             'status' => true,
             'skillplan' => $skillPlan
         ]);
-    }
-
-    public function calculateTrainingTimeAndSP(SkillPlan $skillPlan)
-    {
-        $totalSP = 0;
-        $trnTime = 0; // in Minutes
-        $planAttributes = $skillPlan->attributes->recursive();
-        foreach($skillPlan->skillz as $skill) {
-            if ($skillPlan->remaps->has($skill->position - 1)) {
-                $planAttributes = collect($skillPlan->remaps->get($skill->position - 1));
-
-            }
-            $spInLevel = pow(2, 2.5 * ($skill->level - 1)) * 250 * $skill->rank;
-            $spPerMinute = $planAttributes->get($skill->primaryAttribute) + ($planAttributes->get($skill->secondaryAttribute)/2);
-            $trnTime += ceil($spInLevel/$spPerMinute);
-            $totalSP += $spInLevel;
-            unset($spInLevel,$spPerMinute);
-        }
-
-        $skillPlan->update([
-            'training_time' => $trnTime,
-            'total_sp' => $totalSP
-        ]);
-        return true;
     }
 
     public function buildAttributeComp(Collection $skillz)
