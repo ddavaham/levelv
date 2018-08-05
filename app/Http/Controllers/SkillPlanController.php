@@ -435,10 +435,20 @@ class SkillPlanController extends Controller
             'training_time' => number_format($day, 0). "d ".number_format($hour, 0)."h ".number_format($min, 0)."m",
             'total_sp' => number_format($totalSP, 0) . " SP"
         ]);
+
+        if ($skillPLan->isPrivate()) {
+            $skillPlan->load('members');
+
+            $operators = $skillPlan->members->whereIn('role',  ['administrator', 'operator']);
+        }
+
+        return view('skillplans.view', [
             'plan' => $skillPlan,
+            'details' => $details,
             'tree' => $skillTree,
             'attributeComp' => $attributeComp,
-            'missingSkillz' => $missingSkillz
+            'missingSkillz' => $missingSkillz,
+            'operators' => $skillPlan->isPrivate() ? $operators : null
         ]);
     }
 
