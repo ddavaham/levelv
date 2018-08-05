@@ -14,6 +14,17 @@ class PortalController extends Controller
         $this->skillCont = new SkillPlanController;
     }
 
+    public function dashboard ()
+    {
+        Auth::user()->load('alts.jobs');
+        $jobs = collect([
+            'pending' => Auth::user()->alts->pluck('jobs')->flatten()->whereIn('status', ['queued', 'executing'])->count()
+        ]);
+        return view('dashboard', [
+            'jobs' => $jobs
+        ]);
+    }
+
     public function attributes(int $member)
     {
         $member = Member::findOrFail($member);
@@ -25,19 +36,6 @@ class PortalController extends Controller
         $member = Member::findOrFail($member);
         $member->load('clones');
         return view('portal.clones')->withMember($member);
-    }
-
-    public function dashboard ()
-    {
-        Auth::user()->load('alts.jobs');
-        $jobs = collect([
-            'pending' => Auth::user()->alts->pluck('jobs')->flatten()->whereIn('status', ['queued', 'executing'])->count(),
-            'finished' => Auth::user()->alts->pluck('jobs')->flatten()->whereIn('status', ['finished'])->count(),
-            'failed' => Auth::user()->alts->pluck('jobs')->flatten()->whereIn('status', ['failed'])->count()
-        ]);
-        return view('portal.dashboard', [
-            'jobs' => $jobs
-        ]);
     }
 
     public function overview (int $member)
