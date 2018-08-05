@@ -12,8 +12,8 @@
 */
 
 Route::match(['GET'],'/', 'PublicController@home')->name('home');
-// Route::match(['GET'],'/donate', 'PublicController@donate')->name('donate');
 
+// Route::match(['GET'],'/donate', 'PublicController@donate')->name('donate');
 
 Route::match(['GET'],'/login', 'AuthController@login')->name('auth.login');
 Route::match(['GET'],'/logout', 'AuthController@logout')->name('auth.logout');
@@ -44,4 +44,4 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
-Route::match(['GET'], '/hack', 'HackingController@index');
+// Route::match(['GET'], '/hack', 'HackingController@index');
