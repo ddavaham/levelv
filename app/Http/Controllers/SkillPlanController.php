@@ -214,7 +214,7 @@ class SkillPlanController extends Controller
                                 if (!$addSkill->get('status')) {
                                     Session::flash('alert', [
                                         'header' => "Unable to Add Skill",
-                                        'message' => $addSkill->get('payload')->get('message'),
+                                        'message' => $addSkill->get('message'),
                                         'type' => 'info',
                                         'close' => 1
                                     ]);
