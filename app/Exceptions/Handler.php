@@ -52,7 +52,12 @@ class Handler extends ExceptionHandler
 
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        Session::put('to', $request->fullUrl());
+        Session::flash('alert', [
+            'header' => "Unauthenticated Request",
+            'message' => "You must be logged into view that page. Please login and then attempt to visit the url again.",
+            'type' => 'danger',
+            'close' => 1
+        ]);
         return redirect(route('auth.login'));
     }
 }
