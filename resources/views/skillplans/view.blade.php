@@ -116,6 +116,23 @@
             </div>
             <div class="col-md-4">
                 <div class="card">
+                    <div class="card-header">
+                        Author
+                    </div>
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="media mt-0">
+                                <img src="{{ config('services.eve.urls.img') }}/Character/{{ $plan->author->id }}_64.jpg" class="rounded img-fluid mr-3" />
+                                <div class="media-body align-center">
+                                    <h5>
+                                        {{ $plan->author->name }}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
                     <div class="card-header" data-toggle="collapse" data-target="#legend">
                         Legend <small>Click to Collapse</small>
                     </div>
