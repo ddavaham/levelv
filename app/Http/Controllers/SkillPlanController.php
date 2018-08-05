@@ -333,6 +333,14 @@ class SkillPlanController extends Controller
                     return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
                 }
                 if ($action === "makePrivate") {
+                    $hasAdmin = $skillPlan->members()->where('member_id', Auth::user()->id)->first();
+                    if (is_null($hasAdmin)) {
+                        $skillplan->members()->create([
+                            'member_id' => Auth::user()->id,
+                            'member_type' => "character",
+                            'role' => "administrator"
+                        ]);
+                    }
                     $skillPlan->update([
                         'is_public' => 0
                     ]);
