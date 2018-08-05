@@ -36,22 +36,24 @@ class SkillPlanController extends Controller
                 }
             }
             $attributes = collect(config('services.eve.dogma.attributes.map'));
-            $create = SkillPlan::create([
+            $skillplan = SkillPlan::create([
                 'id' => $id,
                 'name' => $name,
                 'author_id' => Auth::user()->main,
-                'attributes' => $attributes->each(function ($attribute, $key) use ($attributes) {$attributes->put($attribute, 17);$attributes->forget($key);})->toJson()
+                'attributes' => $attributes->each(function ($attribute, $key) use ($attributes) {$attributes->put($attribute, 17);$attributes->forget($key);})->toJson(),
+                'is_public' => 1
             ]);
+
             Session::flash('alert', [
                 'header' => "Skillplan {$name} Created Successfully",
                 'message' => "Your skillplan <strong>{$name}</strong> has been created successfully and is ready to start having skillz added to it.",
                 'type' => 'info',
                 'close' => 1
             ]);
-            return redirect(route('skillplan.view', ['skillplan' => $create->id]));
+            return redirect(route('skillplan.view', ['skillplan' => $skillplan->id]));
         }
-        $skillPlans = SkillPlan::paginate(50);
-        return view('portal.skillplans.list', [
+        $skillPlans = SkillPlan::where('author_id', Auth::user()->id)->paginate(50);
+        return view('skillplans.list', [
             'skillPlans' => $skillPlans
         ]);
     }
