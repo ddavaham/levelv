@@ -253,7 +253,7 @@ class SkillPlanController extends Controller
                     $skillPlanIsValid = true;
                     $skillTree = collect(json_decode(Cache::get($skillPlan->id), true))->recursive();
                     foreach ($newSkillz as $skill) {
-                        if ($skillTree->has($skill->get('type_id'))) {
+                        if ($skillTree->has($skill->get('type_id')) && $skillPlanIsValid) {
                             $skillOnSkillTree = $skillTree->get($skill->get('type_id'));
                             foreach ($skillOnSkillTree as $key=>$value) {
                                 $skillRequirementOnPlan = $newSkillz->where('type_id', $key)->sortByDesc('level')->first();
