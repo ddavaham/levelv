@@ -71,7 +71,7 @@ class SkillPlanController extends Controller
         if (Request::isMethod('delete')) {
             if (Request::has('target')) {
                 $target = Request::get('target');
-                if ($target=== "skillz") {
+                if ($target === "skillz") {
                     $skillPlan->update([
                         'training_time' => 0,
                         'total_sp' => 0
