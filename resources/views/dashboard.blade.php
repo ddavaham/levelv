@@ -61,24 +61,25 @@
 @endsection
 
 @section('js')
-    <script>
-        interval = {{ config('services.eve.updateInterval') * 1000 }};
-        function updateJobs() {
-            $.ajax({
-                url: "{{ route('api.jobs.status', ['id' => Auth::user()->id]) }}",
-                type: 'GET',
-                dataType: 'json',
-                success: function (data, textStatus, request) {
-                    document.getElementById('countPending').innerHTML = data.pending;
-                    if (data.pending == 0) {
-                        clearInterval(update);
+    @if ($jobs->get('pending') > 0)
+        <script>
+            function updateJobs() {
+                $.ajax({
+                    url: "{{ route('api.jobs.status', ['id' => Auth::user()->id]) }}",
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data, textStatus, request) {
+                        document.getElementById('countPending').innerHTML = data.pending;
+                        if (data.pending == 0) {
+                            clearInterval(update);
+                        }
                     }
-                }
-            });
-        };
+                });
+            };
 
-        $(document).ready(function ()  {
-            update = setInterval(updateJobs, interval);
-        });
-    </script>
+            $(document).ready(function ()  {
+                update = setInterval(updateJobs, {{ config('services.eve.updateInterval') * 1000 }});
+            });
+        </script>
+    @endif
 @endsection
