@@ -76,7 +76,7 @@
                                             Last Remap
                                         </td>
                                         <td>
-                                            {{ $member->attributes->get('last_remap_date')->diffForHumans() }}
+                                            {{ $member->attributes->has('last_remap_date') ? $member->attributes->get('last_remap_date')->diffForHumans() : "Remap Never Used On This Char" }}
                                         </td>
                                     </tr>
                                     <tr>
@@ -84,7 +84,7 @@
                                             Remap Cooldown Date
                                         </td>
                                         <td>
-                                            {{ $member->attributes->get('accrued_remap_cooldown_date')->diffForHumans() }}
+                                            {{ $member->attributes->has('accrued_remap_cooldown_date') ? $member->attributes->get('accrued_remap_cooldown_date')->diffForHumans() : "Remap Never Used On This Char" }}
                                         </td>
                                     </tr>
 
