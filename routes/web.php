@@ -15,7 +15,7 @@ Route::match(['GET'],'/', 'PublicController@home')->name('home');
 
 // Route::match(['GET'],'/donate', 'PublicController@donate')->name('donate');
 
-Route::match(['GET'],'/login', 'AuthController@login')->name('auth.login');
+Route::match(['GET'],'/login', 'AuthController@login')->name('auth.login')->middleware('guest');
 Route::match(['GET'],'/logout', 'AuthController@logout')->name('auth.logout');
 
 
