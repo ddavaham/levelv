@@ -477,11 +477,7 @@ class SkillPlanController extends Controller
         $members = $skillPlan->members()->paginate(25);
         if (Request::isMethod('post')) {
             $validator = Validator::make(Request::all(), [
-                'entityToAdd' => "sometimes|nullable|min:3|max:100",
-
-                // 'promoteEntity' => "required_without:entityToAdd,demoteEntity,removeEntity",
-                // 'demoteEntity' => "required_without:entityToAdd,removeEntity,promoteEntity",
-                // 'removeEntity' => "required_without:entityToAdd,demoteEntity,promoteEntity",
+                'entityToAdd' => "sometimes|nullable|min:3|max:100"
             ]);
             if ($validator->fails()) {
                 return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]))->withErrors($validator)->withInput();
@@ -489,7 +485,6 @@ class SkillPlanController extends Controller
             if (Request::has('entityToAdd') && !is_null(Request::get('entityToAdd'))) {
                 $entity = Request::get('entityToAdd');
                 $search = $this->dataCont->getSearch("character,corporation,alliance", $entity, true);
-                // dd($search);
                 $status = $search->get('status');
                 $payload = collect($search->get('payload')->get('response'))->recursive();
                 if (!$status || ($status && $payload->isEmpty())) {
@@ -601,9 +596,7 @@ class SkillPlanController extends Controller
                 }
                 return redirect(route('skillplan.members', ['skillplan' => $skillPlan->id]));
             }
-
         }
-
         return view('skillplans.members', [
             'plan' => $skillPlan,
             'members' => $members
