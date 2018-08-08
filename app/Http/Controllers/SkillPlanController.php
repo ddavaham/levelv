@@ -409,10 +409,10 @@ class SkillPlanController extends Controller
                 if ($charSkillz->get($skill->type_id)->pivot->trained_skill_level < $skill->level) {
                     $skill->trained = 1;
                 } else {
-                    if (Request::has('showCompletedSkillz')) {
-                        $skill->trained = 2;
-                    } else {
+                    if (Request::has('hideCompletedSkillz')) {
                         $skillPlan->skillz->forget($key);
+                    } else {
+                        $skill->trained = 2;
                     }
                 }
             } else {

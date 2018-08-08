@@ -232,10 +232,10 @@
                         {{ $plan->name }} Options <small>Click to Collapse</small>
                     </div>
                     <div class="list-group collapse" id="optionsBody">
-                        @if (Request::has('showCompletedSkillz'))
-                            <a href="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">Hide Compeleted Skillz</a>
+                        @if (Request::has('hideCompletedSkillz'))
+                            <a href="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" class="list-group-item list-group-item-action">Show Completed Skillz</a>
                         @else
-                            <a href="{{ route('skillplan.view', ['skillplan' => $plan->id, 'showCompletedSkillz' => 1]) }}" class="list-group-item list-group-item-action">Show Compeleted Skillz</a>
+                            <a href="{{ route('skillplan.view', ['skillplan' => $plan->id, 'hideCompletedSkillz' => 1]) }}" class="list-group-item list-group-item-action">Hide Completed Skillz</a>
                         @endif
                         @if (Auth::user()->id == $plan->author_id)
                             @if($plan->is_public)
