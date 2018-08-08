@@ -177,7 +177,7 @@ class SkillPlanController extends Controller
                     $type = $type->get('payload');
                     $type->load('skillAttributes');
                     if ($type->category_id == 16) {
-                        $addSkill = $this->addSkillToPlan($skillPlan, $type, (int)Request::get('skillToAddLevel'), (bool) Request::has('allSkillzV'));
+                        $addSkill = $this->addSkillToPlan($skillPlan, $type, (int) Request::get('skillToAddLevel'), (bool) Request::has('allSkillzV'));
                         if (!$addSkill->get('status')) {
                             Session::flash('alert', [
                                 'header' => "Unable to Add Skill",
@@ -188,12 +188,12 @@ class SkillPlanController extends Controller
                         } else {
                             Session::flash('alert', [
                                 'header' => "Successfully Added Skill",
-                                'message' => "The skill ". $skillType->name. " has been successfully added to the skill plan",
+                                'message' => "The skill ". $type->name. " has been successfully added to the skill plan",
                                 'type' => 'success',
                                 'close' => 1
                             ]);
                         }
-                        return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $skillPlan->id]));
+                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
                     } else {
                         $skillMap = collect(config('services.eve.dogma.attributes.skillz.map'));
                         $skillAttributes = $type->skillAttributes->keyBy('attribute_id');
