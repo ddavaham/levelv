@@ -688,7 +688,7 @@ class SkillPlanController extends Controller
                 }
             }
         });
-        $total = $skillPlanSkillz->count() + 1;
+        $total = $skillPlanSkillz->count();
         foreach($skillsToAttach as $requiredSkill) {
             $requiredSkill->put('position', $total);
             $total += 1;
