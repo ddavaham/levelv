@@ -24,13 +24,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('token:refresh')->everyTenMinutes();
+        $schedule->command('token:refresh')->everyTenMinutes()->unlessBetween('10:45', '11:15');
 
-        $schedule->command('update:attributes')->hourly();
-        $schedule->command('update:clones')->hourly();
-        $schedule->command('update:implants')->hourly();
-        $schedule->command('update:skillqueue')->hourly();
-        $schedule->command('update:skillz')->hourly();
+        $schedule->command('update:attributes')->hourly()->unlessBetween('10:45', '11:15');
+        $schedule->command('update:clones')->hourly()->unlessBetween('10:45', '11:15');
+        $schedule->command('update:implants')->hourly()->unlessBetween('10:45', '11:15');
+        $schedule->command('update:skillqueue')->hourly()->unlessBetween('10:45', '11:15');
+        $schedule->command('update:skillz')->hourly()->unlessBetween('10:45', '11:15');
     }
 
     /**
