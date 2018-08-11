@@ -16,7 +16,7 @@ class CreateTypeDogmaAttributesTable extends Migration
         Schema::create('type_dogma_attributes', function (Blueprint $table) {
             $table->unsignedInteger('type_id');
             $table->unsignedInteger('attribute_id');
-            $table->float('value', 17, 4);
+            $table->unsignedInteger('value');
             $table->timestamps();
 
             $table->primary(['type_id', 'attribute_id']);

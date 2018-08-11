@@ -15,7 +15,7 @@ class Type extends Model
 
     public function skillz()
     {
-        return $this->belongsToMany(Type::class, 'type_skillz', 'type_id', 'id')->withPivot('value');
+        return $this->belongsToMany(Type::class, 'type_skillz', 'type_id', 'skill_id')->withPivot('level');
     }
 
     public function attributes()
@@ -31,6 +31,16 @@ class Type extends Model
     public function implantAttributes()
     {
         return $this->hasMany(TypeDogmaAttribute::class, 'type_id')->whereIn('attribute_id', config('services.eve.dogma.attributes.implants.all'));
+    }
+
+    public function getPrimaryAttribute()
+    {
+        return ucfirst($this->primaryAttribute);
+    }
+
+    public function getSecondaryAttribute()
+    {
+        return ucfirst($this->secondaryAttribute);
     }
 
     public function group()

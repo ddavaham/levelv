@@ -29,13 +29,17 @@
                             <div id="{{ $clone->clone_id }}_details" class="collapse" data-parent="#cloneAccordian">
                                 <div class="card-body p-0">
                                     <table class="table table-bordered m-0">
-                                        <th>
-                                            Slot
-                                        </th>
-                                        <th>
-                                            Implant Details
-                                        </th>
-                                        @foreach ($clone->implants as $implant)
+
+                                        @forelse ($clone->implants as $implant)
+                                            @if ($loop->first)
+                                                <th>
+                                                    Slot
+                                                </th>
+                                                <th>
+                                                    Implant Details
+                                                </th>
+
+                                            @endif
                                             <tr>
                                                 <td class="text-center align-middle">
                                                     {{ $implant->implantAttributes->where('attribute_id', config('services.eve.dogma.attributes.implants.slot'))->first()->value }}
@@ -50,7 +54,13 @@
                                                     @endforeach
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        @empty
+                                            <tr>
+                                                <td colspan="2">
+                                                    This clone does not have any implants
+                                                </td>
+                                            </tr>
+                                        @endforelse
                                     </table>
                                 </div>
                             </div>

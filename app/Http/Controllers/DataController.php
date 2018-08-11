@@ -4,6 +4,7 @@ namespace LevelV\Http\Controllers;
 
 use Carbon, Request, Session;
 use LevelV\Models\{JobStatus, Member};
+use LevelV\Models\SDE\Group;
 use LevelV\Models\ESI\{Alliance, Character, Corporation, Station, Structure, System, Type};
 
 use Illuminate\Support\Collection;
@@ -13,6 +14,12 @@ class DataController extends Controller
     public function __construct()
     {
         $this->httpCont = new HttpController;
+        $this->skillMap = collect(config('services.eve.dogma.attributes.skillz.map'));
+        $this->attrMap = collect(config('services.eve.dogma.attributes.map'));
+        $this->rankKey = config('services.eve.dogma.attributes.skillz.rank');
+        $this->priAttrKey = config('services.eve.dogma.attributes.skillz.primary');
+        $this->priAttrKey = config('services.eve.dogma.attributes.skillz.primary');
+        $this->secAttrKey = config('services.eve.dogma.attributes.skillz.secondary');
     }
 
     /**
@@ -514,40 +521,81 @@ class DataController extends Controller
     public function getType (int $id, $ane=false)
     {
         $type = Type::firstOrNew(['id'=>$id]);
-        if (!$type->exists || ($ane && $type->attributes()->count() == 0)) {
+        if (!$type->exists) {
             $request = $this->httpCont->getUniverseTypesTypeId($id);
             if (!$request->get('status')) {
                 return $request;
             }
-            $response = collect($request->get('payload')->get('response'))->recursive();
+            $typeInfo = collect($request->get('payload')->get('response'))->recursive();
+            $group = Group::find($typeInfo->get('group_id'));
+            if (is_null($group)) {
+                return $request;
+            }
+            $attributes = collect();
+            if ($typeInfo->has('dogma_attributes')) {
+                $attributes = $attributes->merge(collect($typeInfo->get('dogma_attributes')))->keyBy('attribute_id');
+                $attributes = $attributes->whereIn('attribute_id', config('services.eve.dogma.attributes.all'));
+                $attributes = $attributes->map(function ($attribute, $key) {
+                    $attribute->put('value', (int) $attribute->get('value'));
+                    return $attribute;
+                });
+            }
 
             $type->fill([
-                'name' => $response->get('name'),
-                'description' => $response->get('description'),
-                'published' => $response->get('published'),
-                'group_id' => $response->get('group_id'),
-                'volume' => $response->get('volume')
+                'name' => $typeInfo->get('name'),
+                'rank' => $attributes->has($this->rankKey) ? $attributes->get($this->rankKey)->get('value') : null,
+                'primaryAttribute' => $attributes->has($this->priAttrKey) ? $this->attrMap->get($attributes->get($this->priAttrKey)->get('value')) : null,
+                'secondaryAttribute' => $attributes->has($this->secAttrKey) ? $this->attrMap->get($attributes->get($this->secAttrKey)->get('value')) : null,
+                'description' => strip_tags($typeInfo->get('description')),
+                'published' => $typeInfo->get('published'),
+                'group_id' => $typeInfo->get('group_id'),
+                'category_id' => $group->category_id,
             ]);
-            $type->save();
-            $type->load('group');
-            $type->fill(['category_id' => $type->group->category_id]);
-            $type->save();
 
-            if ($response->has('dogma_attributes')) {
-                $attributes = $response->get('dogma_attributes');
-                $dbAttributes = $type->attributes()->whereIn('attribute_id', $attributes->pluck('attribute_id')->toArray())->get()->keyBy('attribute_id');
-                $missingAttributes = collect();
-                $attributes->each(function ($attribute) use ($dbAttributes, $type, $missingAttributes) {
-                    // Ignore the mass attribute for right now.
-                    if ($attribute->get('attribute_id') == 4) {
-                        return true;
-                    }
-                    if (!$dbAttributes->has($attribute->get('attribute_id'))) {
-                        $missingAttributes->push($attribute->toArray());
-                    }
-                });
-                $type->attributes()->createMany($missingAttributes->toArray());
+            $type->save();
+            $type->attributes()->createMany($attributes->toArray());
+            $skillz = collect();
+            foreach($this->skillMap as $skillId => $skillLvl) {
+                if ($attributes->has($skillId) && $attributes->has($skillLvl)) {
+                    $id = $attributes->get($skillId)->get('value');
+                    $lvl = $attributes->get($skillLvl)->get('value');
+                    $requiredSkillType = $this->getType($id);
+                    $skillz->put($id,[
+                        'level' => $lvl
+                    ]);
+                }
             }
+            if ($skillz->isNotEmpty()) {
+                $type->skillz()->detach();
+                $type->skillz()->attach($skillz->toArray());
+            }
+        }
+        return collect([
+            'status' => true,
+            'payload' => $type
+        ]);
+    }
+
+    public function getTypeByName(string $name)
+    {
+        $type = Type::where('name', $name)->with('skillAttributes')->first();
+        if (is_null($type)) {
+            $search = $this->getSearch('inventory_type', $name, true);
+            $status = $search->get('status');
+            $payload = collect($search->get('payload'))->recursive()->get('response');
+            if (!$status) {
+                return $search;
+            }
+            if (!$payload->has('inventory_type')) {
+                return collect([
+                    'status' => false,
+                    'payload' => collect([
+                        'message' => "Valid Result Not Found. Please try again"
+                    ])
+                ]);
+            }
+            $payload = $payload->get('inventory_type')->first();
+            return $this->getType($payload);
         }
         return collect([
             'status' => true,

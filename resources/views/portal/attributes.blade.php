@@ -96,14 +96,14 @@
                         <h5>My Implants</h5>
                         <hr />
 
-                        @foreach($member->implants as $implant)
+                        @forelse($member->implants as $implant)
                             <div class="card">
                                 <div class="card-header" data-toggle="collapse" data-target="#{{ $implant->id }}_desc">
                                     Slot {{ number_format($implant->implantAttributes->where('attribute_id',config('services.eve.dogma.attributes.implants.slot'))->first()->value) }} - {{ $implant->name }}
                                 </div>
                                 <div id="{{ $implant->id }}_desc" class="collapse">
                                     <div class="card-body">
-                                        {{ $implant->description }}
+                                        {{ strip_tags($implant->description) }}
                                         <hr />
                                         @foreach($implant->implantAttributes->whereIn('attribute_id', config('services.eve.dogma.attributes.implants.attributeModifiers')) as $modifier)
                                             @if ($modifier->value > 0)
@@ -113,10 +113,18 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                        <div class="text-center mt-1">
-                            <small>Click Headers for more info</small>
-                        </div>
+                            @if ($loop->last)
+                                <div class="text-center mt-1">
+                                    <small>Click Headers for more info</small>
+                                </div>
+                            @endif
+                        @empty
+                            <div class="text-center mt-1">
+                                Active Clone does not have any implants plugged in
+                            </div>
+
+                        @endforelse
+
                     </div>
                 </div>
             </div>

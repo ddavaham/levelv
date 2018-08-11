@@ -18,6 +18,7 @@ class CreateSkillplansTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->json('attributes')->nullable();
+            $table->json('remaps')->nullable();
             $table->unsignedInteger('training_time')->default(0);
             $table->unsignedInteger('total_sp')->default(0);
             $table->unsignedBigInteger('author_id')->nullable();

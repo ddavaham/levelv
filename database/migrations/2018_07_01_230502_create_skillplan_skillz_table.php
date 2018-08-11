@@ -18,9 +18,6 @@ class CreateSkillplanSkillzTable extends Migration
             $table->unsignedTinyInteger('position');
             $table->unsignedInteger('type_id');
             $table->unsignedTinyInteger('level');
-            $table->unsignedTinyInteger('rank');
-            $table->string('primaryAttribute');
-            $table->string('secondaryAttribute');
             $table->timestamps();
 
             $table->primary(['plan_id','position']);

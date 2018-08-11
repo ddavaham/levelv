@@ -19,4 +19,10 @@ class SkillPlanSkillz extends Model
     {
         return $this->hasOne(Type::class, 'id', 'type_id')->with('skillAttributes');
     }
+
+    public function getRomAttribute()
+    {
+        return num2rom($this->level);
+    }
+
 }

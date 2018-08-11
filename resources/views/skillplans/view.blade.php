@@ -53,11 +53,33 @@
                                     <div class="form-group">
                                         {{ csrf_field() }}
                                         <button type="submit" name="action" value="addSkill" class="btn btn-sm btn-primary">Submit Skill</button>
+                                        <button type="button" class="btn btn-sm btn-secondary" data-toggle="collapse" data-target="#importSkillListCollapse">Import SkillList</button>
                                     </div>
                                 </div>
                             </div>
                             <hr />
                         </form>
+                        <div class="collapse" id="importSkillListCollapse">
+                            <form action="{{ route('skillplan.view', ['skillplan' => $plan->id]) }}" method="post">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label for="skillToImport">Paste Skill List Below:</label>
+                                        <a tabindex="0" class="format-popover" data-toggle="popover" data-trigger="focus" title="Example Loki Skillplan" data-content="{{ view('extra.skillplans.example') }}">[Format Example]</a>
+                                        <textarea type="text" name="skillToImport" id="skillToImport" class="form-control" rows="20" >{{ old('skillList') }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            {{ csrf_field() }}
+                                            <button type="submit" name="action" value="importSkillList" class="btn btn-sm btn-primary">Import Plan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </form>
+
+                        </div>
                     </div>
                 @endif
                 @include('extra.alert')
@@ -87,8 +109,8 @@
                                         </button>
                                     </form>
                                 </div>
-                                <span data-skill="{{ $skill->type_id }}" data-level="{{ $skill->level }}">{{ $skill->info->name }} {{ num2rom($skill->level) }} (x{{ $skill->rank }})</span><br />
-                                <small>Primary Attribute: {{ ucfirst(collect(config('services.eve.dogma.attributes.map'))->get((int)$skill->info->skillAttributes->keyBy('attribute_id')->get(config('services.eve.dogma.attributes.skillz.primary'))->value)) }} / Secondary Attribute: {{ ucfirst(collect(config('services.eve.dogma.attributes.map'))->get((int)$skill->info->skillAttributes->keyBy('attribute_id')->get(config('services.eve.dogma.attributes.skillz.secondary'))->value)) }}</small>
+                                <span data-skill="{{ $skill->type_id }}" data-level="{{ $skill->level }}">{{ $skill->info->name }} {{ $skill->rom }} (x{{ $skill->info->rank }})</span><br />
+                                <small>Primary Attribute: {{ $skill->info->primary }} / Secondary Attribute: {{ $skill->info->secondary }}</small>
                             </li>
                         @endforeach
                     </ul>
@@ -540,7 +562,6 @@
         var skillTree={!! $tree !!};
         function validate() {
             skillList(); // Get skill list from DOM
-
             var validSkills={}; // build a list of valid skill levels. Prepopulate with learnt skills
 
             for (var i = 0; i < skillz.length;i++) {
@@ -579,7 +600,7 @@
             var skillList = document.getElementById("skillList");
             var children = skillList.children;
             for (i=0; i<=children.length-1;i++) {
-                skillz.push({"skill":children[i].children[1].dataset.skill, "level":children[i].children[1].dataset.level});
+                skillz.push({"skill":parseInt(children[i].children[1].dataset.skill), "level":parseInt(children[i].children[1].dataset.level)});
             }
         }
 
@@ -596,6 +617,11 @@
                     $('#submittedList').val(order.join(","));
                 }
             });
+
+            $('.format-popover').popover({
+              trigger: 'focus',
+              html: true
+            })
         });
     </script>
 @endsection
