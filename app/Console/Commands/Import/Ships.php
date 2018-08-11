@@ -60,6 +60,7 @@ class Ships extends Command
             $bar->advance();
             $types = $types->merge(collect($payload->get('response')->types));
         });
+        print "\n";
         $count = $types->count();
         $now = now(); $x = 1;
         $bar = $this->output->createProgressBar($count);
@@ -77,5 +78,6 @@ class Ships extends Command
             }
             $x++;
         });
+        print "\n";
     }
 }
