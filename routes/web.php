@@ -44,4 +44,4 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
-Route::match(['GET'], '/hack', 'HackingController@index');
+// Route::match(['GET'], '/hack', 'HackingController@index');
