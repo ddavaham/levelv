@@ -165,7 +165,7 @@ class SkillPlanController extends Controller
                             'type' => 'danger',
                             'close' => 1
                         ]);
-                        return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $skillPlan->id]));
+                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
                     }
                     $payload = $search->get('payload')->recursive()->get('response');
                     if (!$payload->has('inventory_type')) {
@@ -175,7 +175,7 @@ class SkillPlanController extends Controller
                             'type' => 'danger',
                             'close' => 1
                         ]);
-                        return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $skillPlan->id]));
+                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
                     }
                     $typeId = $payload->get('inventory_type')->first();
                     $type = $this->dataCont->getType($typeId);
@@ -187,7 +187,7 @@ class SkillPlanController extends Controller
                             'type' => 'danger',
                             'close' => 1
                         ]);
-                        return redirect(route('skillplan.view', ['member' => $member->id, 'skillplan' => $skillPlan->id]));
+                        return redirect(route('skillplan.view', ['skillplan' => $skillPlan->id]));
                     }
                     $type = $type->get('payload');
                     $type->load('skillAttributes');
@@ -254,15 +254,11 @@ class SkillPlanController extends Controller
                     $currentSkillz = $skillPlan->skillz;
                     $x = 0;
                     $ids->each(function ($id) use ($currentSkillz, $newSkillz, &$x) {
-                        $currentSkillz->get($id)->position = $x;
                         $skill = $currentSkillz->get($id);
                         $newSkillz->push(collect([
                             'position' => $x,
                             'type_id' => $skill->type_id,
-                            'level' => $skill->level,
-                            'rank' => $skill->rank,
-                            "primaryAttribute" => $skill->primaryAttribute,
-                            "secondaryAttribute" => $skill->secondaryAttribute
+                            'level' => $skill->level
                         ]));
                         $x++;
                     });
