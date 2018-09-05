@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+use Log;
 use LevelV\Models\Member;
 use LevelV\Traits\Trackable;
 use LevelV\Http\Controllers\DataController;
@@ -45,7 +46,10 @@ class GetStructure implements ShouldQueue
         $status = $getSystem->get('status');
         $payload = $getSystem->get('payload');
         if (!$status) {
-            throw new \Exception($payload->get('message'), 1);
+            if ($payload->get('code') >= 400) {
+                Log::error($payload->get('message'));
+            }
         }
+        return $status;
     }
 }
