@@ -42,9 +42,9 @@ class GetStructure implements ShouldQueue
     public function handle()
     {
         $member = Member::findOrFail($this->memberId);
-        $getSystem = $this->dataCont->getStructure($member, $this->id);
-        $status = $getSystem->get('status');
-        $payload = $getSystem->get('payload');
+        $getStructure = $this->dataCont->getStructure($member, $this->id);
+        $status = $getStructure->get('status');
+        $payload = $getStructure->get('payload');
         if (!$status) {
             if ($payload->get('code') >= 400) {
                 Log::error($payload->get('message'));

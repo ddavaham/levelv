@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('update:skillqueue')->hourly()->unlessBetween('10:45', '11:15');
         $schedule->command('update:skillz')->hourly()->unlessBetween('10:45', '11:15');
 
-        $schedule->command('clean-stale-members')->hourly();
+        $schedule->command('clean-stale-members')->weekly();
     }
 
     /**

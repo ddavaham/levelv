@@ -430,7 +430,7 @@ class DataController extends Controller
                 $structure->fill(['cached_until' => now()->addDay()]);
                 $structure->save();
                 return collect([
-                    'status' => false,
+                    'status' => true,
                     'payload' => $structure
                 ]);
             }
