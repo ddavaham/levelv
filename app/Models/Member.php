@@ -41,12 +41,6 @@ class Member extends Authenticatable
         return $attributes;
     }
 
-    public function getImplantsAttribute($implants)
-    {
-        $implants = collect(json_decode($implants, true));
-        return Type::whereIn('id', $implants->toArray())->with('implantAttributes')->get();
-    }
-
     public function getRememberToken()
     {
         return null; // not supported
@@ -95,7 +89,7 @@ class Member extends Authenticatable
 
     public function implants()
     {
-        return $this->belongsToMany(Type::class, 'member_implants', 'member_id', 'type_id');
+        return $this->belongsToMany(Type::class, 'member_implants', 'member_id', 'implant_id');
     }
 
     public function clones()

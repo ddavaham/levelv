@@ -27,14 +27,14 @@ class PortalController extends Controller
 
     public function attributes(int $member)
     {
-        $member = Member::findOrFail($member);
+        $member = Member::with('implants.implantAttributes')->findOrFail($member);
         return view('portal.attributes')->withMember($member);
     }
 
     public function clones(int $member)
     {
         $member = Member::findOrFail($member);
-        $member->load('clones');
+        $member->load('clones.implants.implantAttributes');
         return view('portal.clones')->withMember($member);
     }
 
@@ -104,11 +104,11 @@ class PortalController extends Controller
 
     public function queue(int $member)
     {
-        $member = Member::findOrFail($member);
+        $member = Member::with('queue.group')->findOrFail($member);
         $groupsTraining = collect();
         $spTraining = collect();
 
-        $member->queue->load('group')->each(function ($item) use ($spTraining, $groupsTraining) {
+        $member->queue->each(function ($item) use ($spTraining, $groupsTraining) {
             if (!$groupsTraining->has($item->group_id)) {
                 $item->training = 0;
                 $groupsTraining->put($item->group_id, $item->group);

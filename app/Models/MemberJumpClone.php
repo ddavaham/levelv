@@ -8,7 +8,7 @@ use LevelV\Models\ESI\Type;
 
 class MemberJumpClone extends Model
 {
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'clone_id';
     protected $table = 'member_jump_clones';
     public $incrementing = false;
     protected static $unguarded = true;
@@ -22,9 +22,9 @@ class MemberJumpClone extends Model
         return $this->morphTo('location', 'location_type', 'location_id', 'id');
     }
 
-    public function getImplantsAttribute($implants)
+    public function implants ()
     {
-        $implants = collect(json_decode($implants, true));
-        return Type::whereIn('id', $implants->toArray())->with('implantAttributes')->get();
+        return $this->belongsToMany(Type::class, 'member_jump_clone_implants', 'clone_id', 'implant_id');
     }
+
 }
