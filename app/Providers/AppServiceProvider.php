@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
             'system' => System::class,
         ]);
 
-        View::composer('*', \LevelV\Composers\ScopeComposer::class);
+        View::composer(['portal.extra.account', 'portal.extra.character'], \LevelV\Composers\ScopeComposer::class);
     }
 
     /**

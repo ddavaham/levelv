@@ -20,6 +20,7 @@ class ScopeComposer
                 }
             }
         }
+        // $view->with('scopes', Auth::user()->scopes);
         $view->with('currentRouteName', Route::currentRouteName());
     }
 }

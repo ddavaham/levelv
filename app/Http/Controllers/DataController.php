@@ -213,7 +213,6 @@ class DataController extends Controller
             return $request;
         }
         $response = collect($request->get('payload')->get('response'))->recursive();
-
         $homeLocation = $response->get('home_location');
         $now = now(); $x = 0; $dispatchedJobs = collect();
         if ($homeLocation->get('location_type') === "structure") {
@@ -240,15 +239,14 @@ class DataController extends Controller
             'clone_location_type' => $homeLocation->get('location_type')
         ]);
         $member->save();
-
         if ($response->get('jump_clones')->isNotEmpty()) {
             $clones = collect();
-            $response->get('jump_clones')->keyBy('jump_clone_id')->each(function ($clone) use ($member, $clones, $dispatchedJobs, &$now, &$x) {
+            $jump_clones = $response->get('jump_clones')->keyBy('jump_clone_id');
+            $jump_clones->each(function ($clone) use ($member, $clones, $dispatchedJobs, &$now, &$x) {
                 $clones->push([
                     'clone_id' => $clone->get('jump_clone_id'),
                     'location_id' => $clone->get('location_id'),
                     'location_type' => $clone->get('location_type'),
-                    'implants' => $clone->get('implants')->toJson()
                 ]);
                 if ($clone->get('location_type') === "structure") {
                     $structure = Structure::firstOrNew(['id' => $clone->get('location_id')]);
@@ -282,7 +280,31 @@ class DataController extends Controller
                 }
             });
             $member->clones()->delete();
-            $member->clones()->createMany($clones->toArray());
+            $clones = $member->clones()->createMany($clones->toArray());
+            foreach($clones as $clone) {
+                $jump_clone = $jump_clones->get($clone->clone_id);
+
+                if ($jump_clone->get('implants')->isNotEmpty()) {
+                    $jcImplants = $jump_clone->get('implants');
+                    $implants = collect();
+                    $jcImplants->map(function($implant) use ($clone, $implants, $member) {
+                        $implants->push([
+                            'clone_id' => $clone->clone_id,
+                            'member_id' => $member->id,
+                            'implant_id' => $implant
+                        ]);
+                    });
+                    $implantIds = $implants->pluck('implant_id');
+                    $implantCheck = Type::whereIn('id', $implantIds->toArray())->get()->keyBy('id');
+                    $dbImplants = $implantIds->diff($implantCheck->pluck('id'));
+                    if ($dbImplants->isNotEmpty()) {
+                        foreach ($dbImplants as $dbImplant) {
+                            $implantType = $this->getType($dbImplant);
+                        }
+                    }
+                    $clone->implants()->attach($implants->toArray());
+                }
+            }
         }
         $member->jobs()->attach($dispatchedJobs->toArray());
 
@@ -295,11 +317,20 @@ class DataController extends Controller
         if (!$request->get('status')) {
             return $request;
         }
-        $response = collect($request->get('payload')->get('response'));
-        $response->each(function ($implant) {
-            $this->getType($implant);
-        });
-        $member->implants = $response->toJson();
+        $implantIds = collect($request->get('payload')->get('response'));
+
+        if ($implantIds->isNotEmpty()) {
+            $implantCheck = Type::whereIn('id', $implantIds->toArray())->get()->keyBy('id');
+            $dbImplants = $implantIds->diff($implantCheck->pluck('id'));
+            if ($dbImplants->isNotEmpty()) {
+                foreach ($dbImplants as $dbImplant) {
+                    $implantType = $this->getType($dbImplant);
+                }
+            }
+        }
+
+        $member->implants()->detach();
+        $member->implants()->attach($implantIds->toArray());
         $member->save();
 
         return $request;
